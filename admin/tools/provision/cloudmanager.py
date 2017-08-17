@@ -13,7 +13,10 @@ and provisioning
 #  Imports of standard modules --
 # -------------------------------
 from past.builtins import basestring
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser  # python2
 import logging
 import os
 import re
