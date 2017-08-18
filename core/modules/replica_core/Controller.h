@@ -342,6 +342,18 @@ public:
     ServiceStatusRequest_pointer statusOfWorkerService (const std::string                  &workerName,
                                                         ServiceStatusRequest_callback_type  onFinish=nullptr);
                                                          
+    /**
+     * Request detailed info on which replication-related requests are known
+     * to the worker-side service
+     *
+     * @param workerName - the name of a worker node where the service runs
+     * @param onFinish   - a callback function to be called upon completion of the operation
+     *
+     * @return a pointer to the request
+     */
+    ServiceRequestsRequest_pointer requestsOfWorkerService (const std::string                    &workerName,
+                                                            ServiceRequestsRequest_callback_type  onFinish=nullptr);
+                                                         
     // Filters for active requests
 
     std::vector<ReplicationRequest_pointer>       activeReplicationRequests ();

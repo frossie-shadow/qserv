@@ -56,9 +56,11 @@ enum ReplicationManagementRequestType {
 //
 enum ReplicationServiceRequestType {
 
-    SERVICE_SUSPEND = 0;
-    SERVICE_RESUME  = 1;
-    SERVICE_STATUS  = 2;
+    SERVICE_SUSPEND  = 0;
+    SERVICE_RESUME   = 1;
+    SERVICE_STATUS   = 2;
+    SERVICE_REQUESTS = 3;  // get info on all replication related requests known
+                           // to the service
 }
 
 // Message header is sent next after the frame size request. A sender must
@@ -98,7 +100,7 @@ message ReplicationRequestReplicate {
     required string id       = 1;
     required int32  priority = 2;
     required string database = 3;
-    required int32  chunk    = 4;
+    required uint32 chunk    = 4;
     required string worker   = 5;
 }
 
@@ -109,7 +111,7 @@ message ReplicationRequestDelete {
     required string id       = 1;
     required int32  priority = 2;
     required string database = 3;
-    required int32  chunk    = 4;
+    required uint32 chunk    = 4;
 }
 
 // This is a replica lookup request. The message defines a scope of the request
@@ -119,7 +121,7 @@ message ReplicationRequestFind {
     required string id       = 1;
     required int32  priority = 2;
     required string database = 3;
-    required int32  chunk    = 4;
+    required uint32 chunk    = 4;
 }
 
 // This is a replica lookup request for multiple replicas. The message defines
@@ -204,7 +206,7 @@ message ReplicationReplicaInfo {
     required ReplicaStatus status   = 1;
     required string        worker   = 2;
     required string        database = 3;
-    required int32         chunk    = 4;
+    required uint32        chunk    = 4;
 }
 
 message ReplicationResponseFind {
@@ -220,6 +222,24 @@ message ReplicationResponseFindAll {
 /////////////////////////////////////////////////////////////////////////
 // The message returned in response to requests related to (or affecting)
 // the overall state of the server-side replication service.
+
+message ReplicationServiceRequestInfo {
+
+    // Replication related requests only
+
+    required ReplicationReplicaRequestType replica_type = 1;
+
+    // Common parameters of all requests
+
+    required string id       = 2;
+    required int32  priority = 3;
+    required string database = 4;
+ 
+    // These parameters vary depending on a request type
+
+    optional uint32 chunk    = 5;
+    optional string worker   = 6;
+}
 
 message ReplicationServiceResponse {
 
@@ -244,4 +264,9 @@ message ReplicationServiceResponse {
     required uint32 num_in_progress_requests = 4;
     required uint32 num_finished_requests    = 5;
 
+    // Optional (depending on a request) collections of requests in each queue
+    
+    repeated ReplicationServiceRequestInfo new_requests         = 6;
+    repeated ReplicationServiceRequestInfo in_progress_requests = 7;
+    repeated ReplicationServiceRequestInfo finished_requests    = 8;
 }

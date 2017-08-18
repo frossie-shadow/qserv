@@ -673,8 +673,21 @@ Controller::statusOfWorkerService (const std::string                   &workerNa
         shared_from_this(),
         workerName,
         onFinish);
-
 }
+
+ServiceRequestsRequest::pointer
+Controller::requestsOfWorkerService (const std::string                     &workerName,
+                                     ServiceRequestsRequest::callback_type  onFinish) {
+    LOCK_GUARD;
+
+    LOGS(_log, LOG_LVL_DEBUG, "statusOfWorkerService  workerName: " << workerName);
+
+    return ControllerImpl::serviceManagementOperation<ServiceRequestsRequest> (
+        shared_from_this(),
+        workerName,
+        onFinish);
+}
+
 
 std::vector<ReplicationRequest::pointer>
 Controller::activeReplicationRequests () {

@@ -36,7 +36,9 @@
 
 #include <functional>   // std::function
 #include <memory>       // shared_ptr
+#include <ostream>
 #include <string>
+#include <vector>
 
 // Qserv headers
 
@@ -102,6 +104,10 @@ public:
         uint32_t numNewRequests;
         uint32_t numInProgressRequests;
         uint32_t numFinishedRequests;
+        
+        std::vector<lsst::qserv::proto::ReplicationServiceRequestInfo> newRequests;
+        std::vector<lsst::qserv::proto::ReplicationServiceRequestInfo> inProgressRequests;
+        std::vector<lsst::qserv::proto::ReplicationServiceRequestInfo> finishedRequests;
     };
 
     /**
@@ -156,6 +162,9 @@ private:
     /// the management request.
     ServiceState _serviceState;
 };
+
+/// Overloaded streaming operator for type ServiceManagementRequestBase::ServiceState
+std::ostream& operator<< (std::ostream &os, const ServiceManagementRequestBase::ServiceState &ss);
 
 
 /**
@@ -282,6 +291,16 @@ struct ServiceStatusRequestPolicy {
     }
 };
 typedef ServiceManagementRequest<ServiceStatusRequestPolicy> ServiceStatusRequest;
+
+struct ServiceRequestsRequestPolicy {
+    static const char* requestTypeName () {
+        return "SERVICE_REQUESTS";
+    } 
+    static lsst::qserv::proto::ReplicationServiceRequestType requestType () {
+        return lsst::qserv::proto::ReplicationServiceRequestType::SERVICE_REQUESTS;
+    }
+};
+typedef ServiceManagementRequest<ServiceRequestsRequestPolicy> ServiceRequestsRequest;
 
 
 }}} // namespace lsst::qserv::replica_core

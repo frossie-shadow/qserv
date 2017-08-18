@@ -52,8 +52,14 @@ class ProtocolBuffer {
 
 public:
 
+    /// Google protobuffers are more efficient below this size (bytes)
+    static const size_t DESIRED_LIMIT;
+
+    /// The hard limit (bytes) for a single Google protobuffer
+    static const size_t HARD_LIMIT;
+
     /**
-     * Construct the buffer of the specified capacity (bytes).
+     * Construct the buffer of the specified initial capacity (bytes).
      */
     explicit ProtocolBuffer (size_t capacity);
 
@@ -62,6 +68,9 @@ public:
     ProtocolBuffer () = delete;
     ProtocolBuffer (ProtocolBuffer const&) = delete;
     ProtocolBuffer & operator= (ProtocolBuffer const&) = delete;
+
+    /// Destructor
+    virtual ~ProtocolBuffer ();
 
     /**
      * Pointer to the data blob
@@ -82,7 +91,10 @@ public:
     size_t size () const { return _size; }
 
     /**
-     * Set the size of the meaningful content of the buffer.
+     * Set the size of the meaningful content of the buffer. If the buffer
+     * capacity is insufficient to accomodate the requested size the buffer
+     * will be extended. In the later case its previous content (if any) will
+     * be preserved.
      * 
      * The method will throw one of these exceptions:
      *
@@ -107,8 +119,11 @@ public:
     void serialize (const T &message) {
 
         const uint32_t bytes = message.ByteSize();
-        if (sizeof(uint32_t) + bytes > _capacity - _size)
-            throw std::overflow_error("not enough buffer space to accomodate the request");
+
+        // Make sure we have enough space to accomodate the frame length
+        // and the message body.
+
+        extend(_size + sizeof(uint32_t) + bytes);
 
         // Serialize the message header carrying the length of the message
     
@@ -159,7 +174,16 @@ public:
         if (!message.ParseFromArray(_data, bytes))
             throw std::runtime_error("message deserialization failed");
     }
-    
+
+private:
+
+    /**
+     * Ensure the buffer capacity is no less than the specified number of bytes.
+     * Extend it otherwise. The previous contents (as per its 'size') of the buffer
+     * as well as its size will be preserved.
+     */
+    void extend (size_t newCapacityBytes);
+
 private:
 
     char *_data;

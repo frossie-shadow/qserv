@@ -31,6 +31,7 @@
 
 #include <chrono>
 #include <memory>       // shared_ptr, enable_shared_from_this
+#include <ostream>
 #include <string>
 
 #include <boost/asio.hpp>
@@ -129,6 +130,61 @@ public:
         return state2string(state) + "::" +state2string(extendedState);
     }
 
+    /**
+     * Performance counters of a request to track its execution over time
+     *
+     * All time counters are expressed in milliseconds since Epoch.
+     * Undefined values are set to 0.
+     */
+    class Performance {
+
+    public:
+
+        /// Return the current time in milliseconds since Epoch
+        static uint64_t now ();
+
+        /**
+         * The default constructor
+         *
+         * All (but the request creation one) timestamps will be initialized wih 0.
+         */
+        Performance ();
+        
+        /// Copy c-tor
+        Performance (const Performance &p);
+
+        /// Assigned operator
+        Performance & operator= (const Performance &p);  
+
+        /// Destructor
+        virtual ~Performance ();
+
+    private:
+
+        /// Set internal state from the one of another object
+        void setFrom (const Performance &p);
+
+    public:
+
+        /// Created by the Controller
+        uint64_t c_create_time;
+
+        /// Started by the Controller
+        uint64_t c_start_time;
+
+        /// Received by a worker service
+        uint64_t w_receive_time;
+
+        /// Execution started by a worker service
+        uint64_t w_start_time;
+
+        /// Execution fiished by a worker service
+        uint64_t w_finish_time;
+
+        /// A subscriber notified by the Controller
+        uint64_t c_finish_time;
+    };
+
     // Default construction and copy semantics are proxibited
 
     Request () = delete;
@@ -158,6 +214,9 @@ public:
     
     /// Return the extended state of the request when it finished.
     ExtendedState extendedState () const { return _extendedState; }
+
+    /// Return the performance info
+    const Performance& performance () const { return _performance; }
 
     /**
      * Reset the state (if needed) and begin processing the request.
@@ -332,8 +391,10 @@ protected:
     State         _state;
     ExtendedState _extendedState;
 
-    // Buffers for data moved over the network
+    /// Performance counters
+    Performance _performance;
 
+    /// Buffers for data moved over the network
     std::auto_ptr<ProtocolBuffer> _bufferPtr;
 
     // To be initialized from a configuration via the ServiceProvider
@@ -358,6 +419,9 @@ protected:
 
     boost::asio::deadline_timer _requestExpirationTimer;
 };
+
+/// Overloaded streaming operator for class Request::Performance
+std::ostream& operator<< (std::ostream& os, const Request::Performance &p);
 
 }}} // namespace lsst::qserv::replica_core
 

@@ -100,8 +100,10 @@ public:
                     _database,
                     chunk++,
                     [] (rc::ReplicationRequest::pointer request) {
-                        LOGS(_log, LOG_LVL_INFO, request->context() << "** DONE **"
-                            << "  chunk: " << request->chunk());
+                        LOGS(_log, LOG_LVL_INFO, request->context()
+                            << "** DONE **"
+                            << "  chunk: " << request->chunk()
+                            << "  " << request->performance());
                     }
                 );
             requests.push_back(request);
@@ -126,8 +128,10 @@ public:
                     request->worker(),
                     request->id(),
                     [] (rc::StatusReplicationRequest::pointer request) {
-                        LOGS(_log, LOG_LVL_INFO, request->context() << "** DONE **"
-                            << "  targetRequestId: " << request->targetRequestId());
+                        LOGS(_log, LOG_LVL_INFO, request->context()
+                            << "** DONE **"
+                            << "  targetRequestId: " << request->targetRequestId()
+                            << "  " << request->performance());
                     }
                 )
             );
@@ -152,8 +156,10 @@ public:
                     request->worker(),
                     request->id(),
                     [] (rc::StopReplicationRequest::pointer request) {
-                        LOGS(_log, LOG_LVL_INFO, request->context() << "** DONE **"
-                            << "  targetRequestId: " << request->targetRequestId());
+                        LOGS(_log, LOG_LVL_INFO, request->context()
+                            << "** DONE **"
+                            << "  targetRequestId: " << request->targetRequestId()
+                            << "  " << request->performance());
                     }
                 )
             );

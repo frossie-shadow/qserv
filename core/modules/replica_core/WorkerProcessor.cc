@@ -405,6 +405,114 @@ WorkerProcessor::checkStatusImpl (const std::string &id) {
     return WorkerRequest::pointer();
 }
 
+void
+WorkerProcessor::setServiceResponse (proto::ReplicationServiceResponse         &response,
+                                     proto::ReplicationServiceResponse::Status  status,
+                                     bool                                       extendedReport) {
+    LOCK_GUARD;
+
+    LOGS(_log, LOG_LVL_DEBUG, context() << "setServiceResponse");
+
+    response.set_status(status);
+
+    switch (state()) {
+
+        case WorkerProcessor::State::STATE_IS_RUNNING:
+            response.set_service_state (proto::ReplicationServiceResponse::RUNNING);
+            break;
+
+        case WorkerProcessor::State::STATE_IS_STOPPING:
+            response.set_service_state (proto::ReplicationServiceResponse::SUSPEND_IN_PROGRESS);
+            break;
+
+        case WorkerProcessor::State::STATE_IS_STOPPED:
+            response.set_service_state (proto::ReplicationServiceResponse::SUSPENDED);
+            break;
+    }
+    response.set_num_new_requests        (_newRequests.size());
+    response.set_num_in_progress_requests(_inProgressRequests.size());
+    response.set_num_finished_requests   (_finishedRequests.size());
+    
+    if (extendedReport) {
+        for (const auto &request : _newRequests)
+            setServiceResponseInfo(request, response.add_new_requests());
+
+        for (const auto &request : _inProgressRequests)
+            setServiceResponseInfo(request, response.add_in_progress_requests());
+
+        for (const auto &request : _finishedRequests)
+            setServiceResponseInfo(request, response.add_finished_requests());
+    }
+}
+
+void
+WorkerProcessor::setServiceResponseInfo (const WorkerRequest::pointer         &request,
+                                         proto::ReplicationServiceRequestInfo *info) const {
+
+    if (
+        WorkerReplicationRequest::pointer ptr =
+            std::dynamic_pointer_cast<WorkerReplicationRequest>(request)) {
+
+        info->set_replica_type (proto::ReplicationReplicaRequestType::REPLICA_CREATE);
+        info->set_id           (ptr->id());
+        info->set_priority     (ptr->priority());
+        info->set_database     (ptr->database());
+        info->set_chunk        (ptr->chunk());
+        info->set_worker       (ptr->worker());
+
+    } else if (
+        WorkerDeleteRequest::pointer ptr =
+            std::dynamic_pointer_cast<WorkerDeleteRequest>(request)) {
+
+        info->set_replica_type (proto::ReplicationReplicaRequestType::REPLICA_DELETE);
+        info->set_id           (ptr->id());
+        info->set_priority     (ptr->priority());
+        info->set_database     (ptr->database());
+        info->set_chunk        (ptr->chunk());
+
+    } else if (
+        WorkerFindRequest::pointer ptr =
+            std::dynamic_pointer_cast<WorkerFindRequest>(request)) {
+
+        info->set_replica_type (proto::ReplicationReplicaRequestType::REPLICA_FIND);
+        info->set_id           (ptr->id());
+        info->set_priority     (ptr->priority());
+        info->set_database     (ptr->database());
+        info->set_chunk        (ptr->chunk());
+
+    } else if (
+        WorkerFindAllRequest::pointer ptr =
+            std::dynamic_pointer_cast<WorkerFindAllRequest>(request)) {
+
+        info->set_replica_type (proto::ReplicationReplicaRequestType::REPLICA_FIND_ALL);
+        info->set_id           (ptr->id());
+        info->set_priority     (ptr->priority());
+        info->set_database     (ptr->database());
+
+    } else {
+        throw std::logic_error (
+            "unsupported request type: " + request->type() + " id: " + request->id() +
+            " at WorkerProcessor::setServiceResponseInfo");
+    }
+}
+
+size_t
+WorkerProcessor::numNewRequests () const {
+    LOCK_GUARD;
+    return _newRequests.size();
+}
+
+size_t
+WorkerProcessor::numInProgressRequests () const {
+    LOCK_GUARD;
+    return _inProgressRequests.size();
+}
+
+size_t
+WorkerProcessor::numFinishedRequests () const {
+    LOCK_GUARD;
+    return _finishedRequests.size();
+}
 
 WorkerRequest::pointer
 WorkerProcessor::fetchNextForProcessing (const WorkerProcessorThread::pointer &processorThread,
@@ -511,28 +619,20 @@ void
 WorkerProcessor::setInfo (const WorkerRequest::pointer        &request,
                           proto::ReplicationResponseReplicate &response) {
 
-    if (request) {
+    if (!request) return;
 
-        WorkerReplicationRequest::pointer ptr =
-            std::dynamic_pointer_cast<WorkerReplicationRequest>(request);
-    
-        if (!ptr)
-            throw std::logic_error("incorrect dynamic type of request id: " + request->id() +
-                                   " in WorkerProcessor::setInfo(WorkerReplicationRequest)");
-    
-        // Note the ownership transfer of an intermediate protobuf object obtained
-        // from ReplicaCreateInfo object in the call below. The protobuf runtime will take
-        // care of deleting the intermediate object.
-    
-        response.set_allocated_replication_info(ptr->replicationInfo().info());
-        
-    } else {
+    WorkerReplicationRequest::pointer ptr =
+        std::dynamic_pointer_cast<WorkerReplicationRequest>(request);
 
-        // Set the dummy info iv no pointer is passed into the method
-        
-        ReplicaCreateInfo dummyInfo;
-        response.set_allocated_replication_info(dummyInfo.info());
-    }
+    if (!ptr)
+        throw std::logic_error("incorrect dynamic type of request id: " + request->id() +
+                               " in WorkerProcessor::setInfo(WorkerReplicationRequest)");
+
+    // Note the ownership transfer of an intermediate protobuf object obtained
+    // from ReplicaCreateInfo object in the call below. The protobuf runtime will take
+    // care of deleting the intermediate object.
+
+    response.set_allocated_replication_info(ptr->replicationInfo().info());
 }
 
 

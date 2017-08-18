@@ -16,22 +16,13 @@ namespace {
 
 LOG_LOGGER _log = LOG_GET("lsst.qserv.replica.replica_admin");
 
-const char* usage = "Usage: <config> {SUSPEND | RESUME | STATUS} <worker>";
+const char* usage = "Usage: <config> {SERVICE_SUSPEND | SERVICE_RESUME | SERVICE_STATUS | SERVICE_REQUESTS} <worker>";
 
 /**
  * Print a status of the service
  */
 void printRequest (const rc::ServiceManagementRequestBase::pointer &request) {
-
-    const rc::ServiceManagementRequestBase::ServiceState& serviceState =
-        request->getServiceState ();
-
-    LOGS(_log, LOG_LVL_INFO, request->id() << "  ** DONE **"
-        << "  service: " << serviceState.state2string()
-        << "  new, in-progress, finished: "
-        << serviceState.numNewRequests << ", "
-        << serviceState.numInProgressRequests << ", "
-        << serviceState.numFinishedRequests);
+    LOGS(_log, LOG_LVL_INFO, request->id() << request->getServiceState ());
 }
 
 /**
@@ -54,21 +45,26 @@ void test (const std::string &configFileName,
 
         rc::ServiceManagementRequestBase::pointer request;
 
-        if      ("SUSPEND" == operation) request = controller->suspendWorkerService (
+        if      ("SERVICE_SUSPEND" == operation) request = controller->suspendWorkerService (
                 worker,
                 [] (rc::ServiceSuspendRequest::pointer request) {
                     printRequest (request);
                 });
 
-        else if ("RESUME"  == operation) request = controller->resumeWorkerService (
+        else if ("SERVICE_RESUME"  == operation) request = controller->resumeWorkerService (
                 worker,
                 [] (rc::ServiceResumeRequest::pointer request) {
                     printRequest (request);
                 });
 
-        else if ("STATUS"  == operation) request = controller->statusOfWorkerService (
+        else if ("SERVICE_STATUS"  == operation) request = controller->statusOfWorkerService (
                 worker,
                 [] (rc::ServiceStatusRequest::pointer request) {
+                    printRequest (request);
+                });
+        else if ("SERVICE_REQUESTS"  == operation) request = controller->requestsOfWorkerService (
+                worker,
+                [] (rc::ServiceRequestsRequest::pointer request) {
                     printRequest (request);
                 });
         else {

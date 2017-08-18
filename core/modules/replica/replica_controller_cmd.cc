@@ -76,6 +76,7 @@ uint32_t chunk;
 template <class T>
 void printRequest (typename T::pointer &request) {
     LOGS(_log, LOG_LVL_INFO, request->id() << "  " << request->responseData());
+    LOGS(_log, LOG_LVL_INFO, request->id() << "  " << request->performance());
 }
 
 

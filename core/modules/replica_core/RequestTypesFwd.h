@@ -146,6 +146,11 @@ using                      ServiceStatusRequest  = ServiceManagementRequest<Serv
 typedef std::shared_ptr   <ServiceStatusRequest>                            ServiceStatusRequest_pointer;
 typedef std::function<void(ServiceStatusRequest_pointer)>                   ServiceStatusRequest_callback_type;
 
+class                      ServiceRequestsRequestPolicy;
+using                      ServiceRequestsRequest = ServiceManagementRequest<ServiceRequestsRequestPolicy>;
+typedef std::shared_ptr   <ServiceRequestsRequest>                           ServiceRequestsRequest_pointer;
+typedef std::function<void(ServiceRequestsRequest_pointer)>                  ServiceRequestsRequest_callback_type;
+
 }}} // namespace lsst::qserv::replica_core
 
 #endif // LSST_QSERV_REPLICA_CORE_REQUESTTYPESFWD_H

@@ -240,7 +240,7 @@ public:
         // Set the status field which is present in all response types
         response.set_status(translateReplicationStatus(ptr->status()));
 
-       // Set request-specific fields. Note exception handling for scenarios
+        // Set request-specific fields. Note exception handling for scenarios
         // when request identifiers won't match actual types of requests
 
         try {
@@ -250,14 +250,28 @@ public:
         }
     }
 
+    /**
+     * Fill in processor's state and counters into a response object to be sent
+     * back to a remote client.
+     *
+     * @param response       - the protobuf object to be initialized and ready
+     *                         to be sent back to the client
+     * @param status         - desired status to set
+     * @param extendedReport - to return detailed info on all known
+     *                         replica-related requests
+     */
+    void setServiceResponse (proto::ReplicationServiceResponse         &response,
+                             proto::ReplicationServiceResponse::Status  status,
+                             bool                                       extendedReport = false);
+
     /// Number of new unprocessed requests
-    size_t numNewRequests () const { return _newRequests.size(); }
+    size_t numNewRequests () const;
 
     /// Number of requests which are being processed
-    size_t numInProgressRequests () const { return _inProgressRequests.size(); }
+    size_t numInProgressRequests () const;
 
     /// Number of completed (succeeded or otherwise) requests
-    size_t numFinishedRequests () const { return _finishedRequests.size(); }
+    size_t numFinishedRequests () const;
 
 private:
 
@@ -351,6 +365,18 @@ private:
                   proto::ReplicationResponseFindAll &response);
 
     /**
+     * Fill in the information object for the specified request based on its
+     * actual type.
+     *
+     * The method will throw std::logic_error for unsupported request types.
+     *
+     * @param request - a reference to the request
+     * @param info    - a pointer to the protobuf object to be filled
+     */
+    void setServiceResponseInfo (const WorkerRequest::pointer         &request,
+                                 proto::ReplicationServiceRequestInfo *info) const;
+
+    /**
      * Report a decision not to process a request
      *
      * This method ia supposed to be called by one of the processing threads
@@ -399,7 +425,7 @@ private:
     std::vector<WorkerProcessorThread::pointer> _threads;
     
     /// Mutex guarding the queues
-    std::mutex _mtx;
+    mutable std::mutex _mtx;
 
     /// New unprocessed requests
     PriorityQueueType _newRequests;

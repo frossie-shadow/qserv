@@ -109,39 +109,7 @@ bool readLength (boost::asio::ip::tcp::socket  &socket,
     
     bytes = ptr->parseLength();
     return true;
-}
-
-// Eliminate nested namespaces as if we were using this class within
-// the namespace
-typedef lsst::qserv::replica_core::WorkerProcessor WorkerProcessor;
-
-/// Fill in processor's state and counters into a response object
-// which will be sent back to a remote client.
-void setServiceResponse (proto::ReplicationServiceResponse         &response,
-                         proto::ReplicationServiceResponse::Status  status,
-                         WorkerProcessor                           &processor) {
-
-    response.set_status(status);
-
-    switch (processor.state()) {
-
-        case WorkerProcessor::State::STATE_IS_RUNNING:
-            response.set_service_state (proto::ReplicationServiceResponse::RUNNING);
-            break;
-
-        case WorkerProcessor::State::STATE_IS_STOPPING:
-            response.set_service_state (proto::ReplicationServiceResponse::SUSPEND_IN_PROGRESS);
-            break;
-
-        case WorkerProcessor::State::STATE_IS_STOPPED:
-            response.set_service_state (proto::ReplicationServiceResponse::SUSPENDED);
-            break;
-    }
-    response.set_num_new_requests        (processor.numNewRequests());
-    response.set_num_in_progress_requests(processor.numInProgressRequests());
-    response.set_num_finished_requests   (processor.numFinishedRequests());
-}
-                
+} 
 }   // namespace
 
 namespace lsst {
@@ -416,11 +384,10 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
             _processor.stop ();
 
             proto::ReplicationServiceResponse response;
-            ::setServiceResponse(response,
-                                 _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
-                                     proto::ReplicationServiceResponse::FAILED :
-                                     proto::ReplicationServiceResponse::SUCCESS,
-                                 _processor);
+            _processor.setServiceResponse(response,
+                                          _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
+                                              proto::ReplicationServiceResponse::FAILED :
+                                              proto::ReplicationServiceResponse::SUCCESS);
             reply(response);
 
             break;
@@ -433,11 +400,10 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
             _processor.run ();
 
             proto::ReplicationServiceResponse response;
-            ::setServiceResponse(response,
-                                 _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
-                                    proto::ReplicationServiceResponse::SUCCESS :
-                                    proto::ReplicationServiceResponse::FAILED,
-                                 _processor);
+            _processor.setServiceResponse (response,
+                                           _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
+                                               proto::ReplicationServiceResponse::SUCCESS :
+                                               proto::ReplicationServiceResponse::FAILED);
             reply(response);
 
             break;
@@ -445,9 +411,21 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
         case proto::ReplicationServiceRequestType::SERVICE_STATUS: {
 
             proto::ReplicationServiceResponse response;
-            ::setServiceResponse (response,
-                                  proto::ReplicationServiceResponse::SUCCESS,
-                                  _processor);
+            _processor.setServiceResponse (response,
+                                           proto::ReplicationServiceResponse::SUCCESS);
+            reply(response);
+
+            break;
+        }
+        case proto::ReplicationServiceRequestType::SERVICE_REQUESTS: {
+
+            const bool extendedReport = true;   // to return detailed info on all known
+                                                // replica-related requests
+
+            proto::ReplicationServiceResponse response;
+            _processor.setServiceResponse (response,
+                                           proto::ReplicationServiceResponse::SUCCESS,
+                                           extendedReport);
             reply(response);
 
             break;

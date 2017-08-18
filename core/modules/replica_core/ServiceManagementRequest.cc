@@ -41,12 +41,63 @@ namespace {
 
 LOG_LOGGER _log = LOG_GET("lsst.qserv.replica_core.ServiceManagementRequestBase");
 
+/// Dump a collection of request descriptions onto the output stream
+void dumpRequestInfo (std::ostream                                            &os,
+                      const std::vector<proto::ReplicationServiceRequestInfo> &requests) {
+
+    for (const auto &r : requests) {
+        os  << "\n"
+            << "    type:     " << proto::ReplicationReplicaRequestType_Name(r.replica_type()) << "\n"
+            << "    id:       " << r.id() << "\n"
+            << "    priority: " << r.priority() << "\n"
+            << "    database: " << r.database() << "\n";
+        switch (r.replica_type()) {
+            case proto::ReplicationReplicaRequestType::REPLICA_CREATE:
+                os  << "    chunk:    " << r.chunk() << "\n"
+                    << "    worker:   " << r.worker() << "\n";
+                break;
+            case proto::ReplicationReplicaRequestType::REPLICA_DELETE:
+            case proto::ReplicationReplicaRequestType::REPLICA_FIND:
+                os  << "    chunk:    " << r.chunk() << "\n";
+                break;
+            case proto::ReplicationReplicaRequestType::REPLICA_FIND_ALL:
+                break;
+            default:
+                throw std::logic_error("unhandled request type " + proto::ReplicationReplicaRequestType_Name(r.replica_type()) +
+                                       " in  ServiceManagementRequestBase::dumpRequestInfo");
+        }
+    }
+}
+
 } /// namespace
 
 
 namespace lsst {
 namespace qserv {
 namespace replica_core {
+
+std::ostream&
+operator<< (std::ostream &os, const ServiceManagementRequestBase::ServiceState &ss) {
+
+    os  << "ServiceManagementRequestBase::ServiceState:\n"
+        << "  Summary:\n"
+        << "    service state:              " << ss.state2string() << "\n"
+        << "    total new requests:         " << ss.numNewRequests << "\n"
+        << "    total in-progress requests: " << ss.numInProgressRequests << "\n"
+        << "    total finished requests:    " << ss.numFinishedRequests << "\n";
+
+    os  << "  New:\n";
+    ::dumpRequestInfo(os, ss.newRequests);
+
+    os  << "  In-Progress:\n";
+    ::dumpRequestInfo(os, ss.inProgressRequests);
+
+    os  << "  Finished:\n";
+    ::dumpRequestInfo(os, ss.finishedRequests);
+
+    return os;
+}
+
 
 const ServiceManagementRequestBase::ServiceState&
 ServiceManagementRequestBase::getServiceState () const {
@@ -238,6 +289,15 @@ ServiceManagementRequestBase::analyze (proto::ReplicationServiceResponse respons
             _serviceState.numInProgressRequests = response.num_in_progress_requests();
             _serviceState.numFinishedRequests   = response.num_finished_requests   ();
  
+            for (int num = response.new_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.newRequests.emplace_back(response.new_requests(idx));
+
+            for (int num = response.in_progress_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.inProgressRequests.emplace_back(response.in_progress_requests(idx));
+
+            for (int num = response.finished_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.finishedRequests.emplace_back(response.finished_requests(idx));
+
             finish (SUCCESS);
             break;
 

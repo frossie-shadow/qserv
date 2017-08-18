@@ -29,6 +29,8 @@
 // Qserv headers
 
 #include "lsst/log/Log.h"
+#include "replica_core/Configuration.h"
+#include "replica_core/ServiceProvider.h"
 
 namespace {
 
