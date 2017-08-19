@@ -392,6 +392,7 @@ ReplicationRequest::analyze (const proto::ReplicationResponseReplicate &message)
     // Always extract extended data regardless of the completion status
     // reported by the worker service.
 
+    _performance.update(message.performance());
     _responseData = ReplicaCreateInfo(&(message.replication_info()));
 
     switch (message.status()) {

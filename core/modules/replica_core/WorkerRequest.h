@@ -36,6 +36,8 @@
 
 // Qserv headers
 
+#include "replica_core/Performance.h"
+
 // Forward declarations
 
 // This header declarations
@@ -104,6 +106,9 @@ public:
     int priority () const { return _priority; }
 
     CompletionStatus  status () const { return _status; }
+
+    /// Return the performance info
+    const WorkerPerformance& performance () const { return _performance; }
 
     /** Set the status
      *
@@ -188,6 +193,9 @@ protected:
     int _priority;
     
     CompletionStatus _status;
+
+    /// Performance counters
+    WorkerPerformance _performance;
 
     /// The number of milliseconds since the beginning of the request processing.
     /// This members is used by the default implementation of method execute()

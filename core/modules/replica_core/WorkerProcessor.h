@@ -201,23 +201,39 @@ public:
     void dequeueOrCancel (const proto::ReplicationRequestStop &request,
                           RESPONSE_MSG_TYPE                   &response) {
 
-        WorkerRequest::pointer ptr = dequeueOrCancelImpl(request.id());
-        if (!ptr) {
-            response.set_status(proto::ReplicationStatus::BAD);
-            return;
+
+        // Try to locate a request with specified identifier and make sure
+        // its actual type matches expecations
+
+        if (WorkerRequest::pointer ptr = dequeueOrCancelImpl(request.id())) {
+            try {
+
+                // Set request-specific fields. Note exception handling for scenarios
+                // when request identifiers won't match actual types of requests
+                setInfo(ptr, response);
+
+                // The performance counters are filled from the above request only
+                // if this is the right kind of request.
+                response.set_allocated_performance(ptr->performance().info());
+
+                // The status field is present in all response types
+                response.set_status(translateReplicationStatus(ptr->status()));
+
+                return;
+            
+            } catch (const std::logic_error &ex) { ; }
         }
 
-        // Set the status field which is present in all response types
-        response.set_status(translateReplicationStatus(ptr->status()));
+        // If the above stated conditions weren't met then assume a fallback
+        // scenario of a bad request. Note that we only need to set response
+        // fields which are strictly required by the protocol definition.
 
-        // Set request-specific fields. Note exception handling for scenarios
-        // when request identifiers won't match actual types of requests
+        WorkerPerformance performance;
+        performance.setUpdateStart();
+        performance.setUpdateFinish();
+        response.set_allocated_performance(performance.info());
 
-        try {
-            setInfo(ptr, response);
-        } catch (const std::logic_error &ex) {
-            response.set_status(proto::ReplicationStatus::BAD);
-        }
+        response.set_status(proto::ReplicationStatus::BAD);
     }
 
     /**
@@ -231,23 +247,38 @@ public:
     void checkStatus (const proto::ReplicationRequestStatus &request,
                       RESPONSE_MSG_TYPE                     &response) {
 
-        WorkerRequest::pointer ptr = checkStatusImpl(request.id());
-        if (!ptr) {
-            response.set_status(proto::ReplicationStatus::BAD);
-            return;
+        // Try to locate a request with specified identifier and make sure
+        // its actual type matches expecations
+
+        if (WorkerRequest::pointer ptr = checkStatusImpl(request.id())) {
+            try {
+
+                // Set request-specific fields. Note exception handling for scenarios
+                // when request identifiers won't match actual types of requests
+                setInfo(ptr, response);
+
+                // The performance counters are filled from the above request only
+                // if this is the right kind of request.
+                response.set_allocated_performance(ptr->performance().info());
+
+                // The status field is present in all response types
+                response.set_status(translateReplicationStatus(ptr->status()));
+
+                return;
+            
+            } catch (const std::logic_error &ex) { ; }
         }
 
-        // Set the status field which is present in all response types
-        response.set_status(translateReplicationStatus(ptr->status()));
+        // If the above stated conditions weren't met then assume a fallback
+        // scenario of a bad request. Note that we only need to set response
+        // fields which are strictly required by the protocol definition.
 
-        // Set request-specific fields. Note exception handling for scenarios
-        // when request identifiers won't match actual types of requests
+        WorkerPerformance performance;
+        performance.setUpdateStart();
+        performance.setUpdateFinish();
+        response.set_allocated_performance(performance.info());
 
-        try {
-            setInfo(ptr, response);
-        } catch (const std::logic_error &ex) {
-            response.set_status(proto::ReplicationStatus::BAD);
-        }
+        response.set_status(proto::ReplicationStatus::BAD);
     }
 
     /**

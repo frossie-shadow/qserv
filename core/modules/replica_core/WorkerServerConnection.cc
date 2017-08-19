@@ -32,6 +32,7 @@
 
 #include "lsst/log/Log.h"
 #include "replica_core/Configuration.h"
+#include "replica_core/Performance.h"
 #include "replica_core/ServiceProvider.h"
 #include "replica_core/WorkerProcessor.h"
 
@@ -374,6 +375,16 @@ WorkerServerConnection::processRequest (proto::ReplicationManagementRequestType 
 void
 WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType type) {
 
+    proto::ReplicationServiceResponse response;
+
+    // All performance counters for this type of requests should be
+    // equal because this is the instantenous request
+
+    WorkerPerformance performance;
+    performance.setUpdateStart();
+    performance.setUpdateFinish();
+    response.set_allocated_performance(performance.info());
+
     switch (type) {
 
         case proto::ReplicationServiceRequestType::SERVICE_SUSPEND: {
@@ -382,8 +393,6 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
             // extra time for the processor's threads to finish on-going processing
 
             _processor.stop ();
-
-            proto::ReplicationServiceResponse response;
             _processor.setServiceResponse(response,
                                           _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
                                               proto::ReplicationServiceResponse::FAILED :
@@ -398,8 +407,6 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
             // (or be denied) instantaneously.
       
             _processor.run ();
-
-            proto::ReplicationServiceResponse response;
             _processor.setServiceResponse (response,
                                            _processor.state() == WorkerProcessor::State::STATE_IS_RUNNING ?
                                                proto::ReplicationServiceResponse::SUCCESS :
@@ -410,7 +417,6 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
         }
         case proto::ReplicationServiceRequestType::SERVICE_STATUS: {
 
-            proto::ReplicationServiceResponse response;
             _processor.setServiceResponse (response,
                                            proto::ReplicationServiceResponse::SUCCESS);
             reply(response);
@@ -421,8 +427,6 @@ WorkerServerConnection::processRequest (proto::ReplicationServiceRequestType typ
 
             const bool extendedReport = true;   // to return detailed info on all known
                                                 // replica-related requests
-
-            proto::ReplicationServiceResponse response;
             _processor.setServiceResponse (response,
                                            proto::ReplicationServiceResponse::SUCCESS,
                                            extendedReport);

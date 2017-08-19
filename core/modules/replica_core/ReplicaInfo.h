@@ -114,9 +114,8 @@ public:
     /**
      * Return a protobuf object
      *
-     * OWNERSHIP TRANSFER NOTE:
-     *    this method allocates a new object and returns a pointer along
-     *    with its ownership.
+     * OWNERSHIP TRANSFER NOTE: this method allocates a new object and
+     * returns a pointer along with its ownership.
      */
     lsst::qserv::proto::ReplicationReplicaInfo *info () const;
 

@@ -25,7 +25,6 @@
 
 // System headers
 
-#include <chrono>
 #include <stdexcept>
 
 #include <boost/bind.hpp>
@@ -52,68 +51,6 @@ LOG_LOGGER _log = LOG_GET("lsst.qserv.replica_core.Request");
 namespace lsst {
 namespace qserv {
 namespace replica_core {
-
-
-////////////////////////////////////////////////////////////////
-///////////////////// Request::Performance /////////////////////
-////////////////////////////////////////////////////////////////
-
-
-uint64_t
-Request::Performance::now () {
-    return std::chrono::duration_cast<std::chrono::milliseconds>
-        (std::chrono::system_clock::now().time_since_epoch()).count();
-}
-
-Request::Performance::Performance ()
-    :   c_create_time (now()),
-        c_start_time  (0),
-        w_receive_time(0),
-        w_start_time  (0),
-        w_finish_time (0),
-        c_finish_time (0) {
-}
-
-Request::Performance::Performance (const Request::Performance &p) {
-    setFrom(p);
-}
-
-Request::Performance&
-Request::Performance::operator= (const Request::Performance &p) {
-    if (this != &p) setFrom(p);
-    return *this;
-}
-
-Request::Performance::~Performance () {
-}
-
-void
-Request::Performance::setFrom (const Request::Performance &p) {
-    c_create_time  = p.c_create_time;
-    c_start_time   = p.c_start_time;
-    w_receive_time = p.w_receive_time;
-    w_start_time   = p.w_start_time;
-    w_finish_time  = p.w_finish_time;
-    c_finish_time  = p.c_finish_time;
-}
-
-std::ostream&
-operator<< (std::ostream& os, const Request::Performance &p) {
-    os  << "Request::Performance "
-        << " c.create:"  << p.c_create_time
-        << " c.start:"   << p.c_start_time
-        << " w.receive:" << p.w_receive_time
-        << " w.start:"   << p.w_start_time
-        << " w.finish:"  << p.w_finish_time
-        << " c.finish:"  << p.c_finish_time
-        << " length.sec:" << (p.c_finish_time ? (p.c_finish_time - p.c_start_time)/1000. : '*');
-    return os;
-}
-
-
-////////////////////////////////////////////////////////////////
-/////////////////////////// Request ////////////////////////////
-////////////////////////////////////////////////////////////////
 
 
 std::string
@@ -192,7 +129,7 @@ Request::start () {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "start  _requestExpirationIvalSec: " << _requestExpirationIvalSec);
 
-    _performance.c_start_time = Performance::now();
+    _performance.setUpdateStart();
 
     if (_requestExpirationIvalSec) {
         _requestExpirationTimer.cancel();
@@ -262,7 +199,7 @@ Request::finish (ExtendedState extendedState) {
     // NOTE: We have to updat the timestamp before invoking a user
     //       handler on teh completion of the operation.
 
-    _performance.c_finish_time = Performance::now();
+    _performance.setUpdateFinish();
 
     endProtocol();
 }

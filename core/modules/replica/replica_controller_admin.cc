@@ -23,6 +23,7 @@ const char* usage = "Usage: <config> {SERVICE_SUSPEND | SERVICE_RESUME | SERVICE
  */
 void printRequest (const rc::ServiceManagementRequestBase::pointer &request) {
     LOGS(_log, LOG_LVL_INFO, request->id() << request->getServiceState ());
+    LOGS(_log, LOG_LVL_INFO, request->id() << request->performance ());
 }
 
 /**

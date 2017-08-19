@@ -165,6 +165,21 @@ message ReplicationRequestStatus {
 // the corresponding replication operations.
 //
 
+// Performance counters (timers) of the requests.
+// This message must be present in the relevant replies.
+//
+message ReplicationPerformance {
+
+    /// When a request was received by a worker service
+    required uint64 receive_time = 1;
+
+    /// When request execution started by a worker service
+    required uint64 start_time = 2;
+
+    /// When request execution fiished by a worker service
+    required uint64 finish_time = 3;
+}
+
 // Status values returned by all request related to operations with
 // replicas. Request management operations always return messages whose types
 // match the return types of the corresponding (original) replica-related reqiests.
@@ -185,7 +200,8 @@ message ReplicationReplicaCreateInfo {
 }
 message ReplicationResponseReplicate {
     required ReplicationStatus status = 1;
-    optional ReplicationReplicaCreateInfo replication_info = 2;
+    required ReplicationPerformance performance = 2;
+    optional ReplicationReplicaCreateInfo replication_info = 3;
 }
 
 message ReplicationReplicaDeleteInfo {
@@ -193,7 +209,8 @@ message ReplicationReplicaDeleteInfo {
 }
 message ReplicationResponseDelete {
     required ReplicationStatus status = 1;
-    optional ReplicationReplicaDeleteInfo delete_info = 2;
+    required ReplicationPerformance performance = 2;
+    optional ReplicationReplicaDeleteInfo delete_info = 3;
 }
 
 message ReplicationReplicaInfo {
@@ -210,13 +227,15 @@ message ReplicationReplicaInfo {
 }
 
 message ReplicationResponseFind {
-    required ReplicationStatus      status = 1;
-    optional ReplicationReplicaInfo replica_info = 2;
+    required ReplicationStatus status = 1;
+    required ReplicationPerformance performance = 2;
+    optional ReplicationReplicaInfo replica_info = 3;
 }
 
 message ReplicationResponseFindAll {
-    required ReplicationStatus      status = 1;
-    repeated ReplicationReplicaInfo replica_info_many = 2;
+    required ReplicationStatus status = 1;
+    required ReplicationPerformance performance = 2;
+    repeated ReplicationReplicaInfo replica_info_many = 3;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -250,23 +269,24 @@ message ReplicationServiceResponse {
         FAILED  = 1;
     }
     required Status status = 1;
+    required ReplicationPerformance performance = 2;
 
     enum ServiceState {
         SUSPEND_IN_PROGRESS = 0;
         SUSPENDED           = 1;
         RUNNING             = 2;
     }
-    required ServiceState service_state = 2;
+    required ServiceState service_state = 3;
 
     // Counters for requests known to the service since its last start
 
-    required uint32 num_new_requests         = 3;
-    required uint32 num_in_progress_requests = 4;
-    required uint32 num_finished_requests    = 5;
+    required uint32 num_new_requests         = 4;
+    required uint32 num_in_progress_requests = 5;
+    required uint32 num_finished_requests    = 6;
 
     // Optional (depending on a request) collections of requests in each queue
     
-    repeated ReplicationServiceRequestInfo new_requests         = 6;
-    repeated ReplicationServiceRequestInfo in_progress_requests = 7;
-    repeated ReplicationServiceRequestInfo finished_requests    = 8;
+    repeated ReplicationServiceRequestInfo new_requests         = 7;
+    repeated ReplicationServiceRequestInfo in_progress_requests = 8;
+    repeated ReplicationServiceRequestInfo finished_requests    = 9;
 }

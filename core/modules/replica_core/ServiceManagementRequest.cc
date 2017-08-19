@@ -259,20 +259,22 @@ ServiceManagementRequestBase::responseReceived (const boost::system::error_code 
 }
 
 void
-ServiceManagementRequestBase::analyze (proto::ReplicationServiceResponse response) {
+ServiceManagementRequestBase::analyze (const proto::ReplicationServiceResponse &message) {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "analyze");
 
+    _performance.update(message.performance());
+
     // Capture the general status of the operation
 
-    switch (response.status()) {
+    switch (message.status()) {
  
         case proto::ReplicationServiceResponse::SUCCESS:
 
             // Transfer the state of the remote service into a local data member
             // before initiating state transition of the request object.
     
-            switch (response.service_state()) {
+            switch (message.service_state()) {
                 case proto::ReplicationServiceResponse::SUSPEND_IN_PROGRESS:
                     _serviceState.state = ServiceManagementRequestBase::ServiceState::State::SUSPEND_IN_PROGRESS;
                     break;
@@ -285,18 +287,18 @@ ServiceManagementRequestBase::analyze (proto::ReplicationServiceResponse respons
                 default:
                     throw std::runtime_error("service state found in protocol is unknown");
             }
-            _serviceState.numNewRequests        = response.num_new_requests        ();
-            _serviceState.numInProgressRequests = response.num_in_progress_requests();
-            _serviceState.numFinishedRequests   = response.num_finished_requests   ();
+            _serviceState.numNewRequests        = message.num_new_requests        ();
+            _serviceState.numInProgressRequests = message.num_in_progress_requests();
+            _serviceState.numFinishedRequests   = message.num_finished_requests   ();
  
-            for (int num = response.new_requests_size(), idx = 0; idx < num; ++idx)
-                _serviceState.newRequests.emplace_back(response.new_requests(idx));
+            for (int num = message.new_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.newRequests.emplace_back(message.new_requests(idx));
 
-            for (int num = response.in_progress_requests_size(), idx = 0; idx < num; ++idx)
-                _serviceState.inProgressRequests.emplace_back(response.in_progress_requests(idx));
+            for (int num = message.in_progress_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.inProgressRequests.emplace_back(message.in_progress_requests(idx));
 
-            for (int num = response.finished_requests_size(), idx = 0; idx < num; ++idx)
-                _serviceState.finishedRequests.emplace_back(response.finished_requests(idx));
+            for (int num = message.finished_requests_size(), idx = 0; idx < num; ++idx)
+                _serviceState.finishedRequests.emplace_back(message.finished_requests(idx));
 
             finish (SUCCESS);
             break;

@@ -70,12 +70,12 @@ WorkerRequest::WorkerRequest (ServiceProvider   &serviceProvider,
                               const std::string &type,
                               const std::string &id,
                               int                priority)
-    :   _serviceProvider (serviceProvider),
-        _type            (type),
-        _id              (id),
-        _priority        (priority),
-        _status          (STATUS_NONE),
-
+    :   _serviceProvider  (serviceProvider),
+        _type             (type),
+        _id               (id),
+        _priority         (priority),
+        _status           (STATUS_NONE),
+        _performance      (),
         _durationMillisec (0) {
 }
 
@@ -87,6 +87,37 @@ WorkerRequest::setStatus (CompletionStatus status) {
     LOGS(_log, LOG_LVL_DEBUG, context() << "setStatus  "
          << WorkerRequest::status2string(_status) << " -> "
          << WorkerRequest::status2string(status));
+
+    switch (status) {
+        case STATUS_NONE:
+            _performance.start_time  = 0;
+            _performance.finish_time = 0;
+            break;
+
+        case STATUS_IN_PROGRESS:
+            _performance.start_time  = _performance.setUpdateStart();
+            _performance.finish_time = 0;
+            break;
+
+        case STATUS_IS_CANCELLING:
+            break;
+
+        case STATUS_CANCELLED:
+
+            // Intercept this status before two others and set the start time to some
+            // meaninful value in case if the request was cancelled while it was sitting
+            // in the input queue before any attempt to execute the one was undertaken
+
+            if (!_performance.start_time) _performance.setUpdateStart();
+
+        case STATUS_SUCCEEDED:
+        case STATUS_FAILED:
+            _performance.setUpdateFinish();
+            break;
+        
+        default:
+            throw std::logic_error("WorkerRequest::setStatus - unhandled status: " + std::to_string(status));
+    }
     _status = status;
 }
 

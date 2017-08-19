@@ -243,7 +243,11 @@ private:
         // the completion status of the request.
 
         POLICY::extractResponseData(message, _responseData);
-        
+
+        // Always update performance counters obtained from the worker service
+
+        _performance.update(message.performance());
+
         // Field 'status' of a type returned by the current method always
         // be defined in all types of request-specific responses.
 

@@ -392,6 +392,7 @@ FindRequest::analyze (const proto::ReplicationResponseFind &message) {
     // Always extract extended data regardless of the completion status
     // reported by the worker service.
 
+    _performance.update(message.performance());
     _replicaInfo = ReplicaInfo(&(message.replica_info()));
 
     switch (message.status()) {

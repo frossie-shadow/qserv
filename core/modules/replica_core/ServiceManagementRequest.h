@@ -150,8 +150,8 @@ private:
     void responseReceived (const boost::system::error_code &ec,
                            size_t                           bytes_transferred);
 
-    /// Process the completion of the requested operation
-    void analyze (lsst::qserv::proto::ReplicationServiceResponse status);
+    /// Process the worker response to the requested operation
+    void analyze (const lsst::qserv::proto::ReplicationServiceResponse &message);
 
 private:
 

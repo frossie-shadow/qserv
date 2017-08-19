@@ -384,6 +384,7 @@ DeleteRequest::analyze (const proto::ReplicationResponseDelete &message) {
     // Always extract extended data regardless of the completion status
     // reported by the worker service.
 
+    _performance.update(message.performance());
     _responseData = ReplicaDeleteInfo(&(message.delete_info()));
 
     switch (message.status()) {
