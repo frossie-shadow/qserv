@@ -160,12 +160,8 @@ WorkerProcessor::enqueueForReplication (const proto::ReplicationRequestReplicate
         << "  chunk: "  << request.chunk()
         << "  worker: " << request.worker());    
 
-    // TODO: run the sanity check to ensure no such request is found in any
-    //       of the queue. Return 'DUPLICATE' error status if teh one is found.
-
-    WorkerRequest::pointer ptr;
     try {
-        ptr = _requestFactory.createReplicationRequest (
+        WorkerRequest::pointer ptr = _requestFactory.createReplicationRequest (
             request.id(),
             request.priority(),
             request.database(),
@@ -175,12 +171,26 @@ WorkerProcessor::enqueueForReplication (const proto::ReplicationRequestReplicate
         _newRequests.push(ptr);
         
         response.set_status (proto::ReplicationStatus::QUEUED);
+        response.set_allocated_performance(ptr->performance().info());
+
+        setInfo(ptr, response);
+        
+        return;
 
     } catch (const std::invalid_argument &ec) {
         LOGS(_log, LOG_LVL_ERROR, context() << "enqueueForReplication  " << ec.what());
-        response.set_status (proto::ReplicationStatus::BAD);
     }
-    setInfo(ptr, response);
+
+    // If the above stated conditions weren't met then assume a fallback
+    // scenario of a bad request. Note that we only need to set response
+    // fields which are strictly required by the protocol definition.
+
+    WorkerPerformance performance;
+    performance.setUpdateStart();
+    performance.setUpdateFinish();
+    response.set_allocated_performance(performance.info());
+
+    response.set_status (proto::ReplicationStatus::BAD);
 }
 
 void
@@ -206,6 +216,8 @@ WorkerProcessor::enqueueForDeletion (const proto::ReplicationRequestDelete &requ
     _newRequests.push(ptr);
 
     response.set_status (proto::ReplicationStatus::QUEUED);
+    response.set_allocated_performance(ptr->performance().info());
+ 
     setInfo(ptr, response);
 }
 
@@ -219,9 +231,6 @@ WorkerProcessor::enqueueForFind (const proto::ReplicationRequestFind &request,
         << "  db: "    << request.database()
         << "  chunk: " << request.chunk());
 
-    // TODO: run the sanity check to ensure no such request is found in any
-    //       of the queue. Return 'DUPLICATE' error status if teh one is found.
-
     WorkerFindRequest::pointer ptr =
         _requestFactory.createFindRequest (
             request.id(),
@@ -232,6 +241,8 @@ WorkerProcessor::enqueueForFind (const proto::ReplicationRequestFind &request,
     _newRequests.push(ptr);
 
     response.set_status (proto::ReplicationStatus::QUEUED);
+    response.set_allocated_performance(ptr->performance().info());
+
     setInfo(ptr, response);
 }
 
@@ -257,6 +268,8 @@ WorkerProcessor::enqueueForFindAll (const proto::ReplicationRequestFindAll &requ
     _newRequests.push(ptr);
 
     response.set_status (proto::ReplicationStatus::QUEUED);
+    response.set_allocated_performance(ptr->performance().info());
+
     setInfo(ptr, response);
 }
 

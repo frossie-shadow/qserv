@@ -54,13 +54,15 @@ StopRequestBase::StopRequestBase (ServiceProvider                               
                                   const char                                        *requestTypeName,
                                   const std::string                                 &worker,
                                   const std::string                                 &targetRequestId,
-                                  lsst::qserv::proto::ReplicationReplicaRequestType  requestType)
+                                  lsst::qserv::proto::ReplicationReplicaRequestType  requestType,
+                                  bool                                               keepTracking)
     :   Request(serviceProvider,
                 io_service,
                 requestTypeName,
                 worker),
         _targetRequestId (targetRequestId),
-        _requestType     (requestType) {
+        _requestType     (requestType),
+        _keepTracking    (keepTracking) {
 }
 
 StopRequestBase::~StopRequestBase () {
@@ -358,13 +360,19 @@ StopRequestBase::analyze (proto::ReplicationStatus status) {
             break;
 
         case proto::ReplicationStatus::QUEUED:
+            if (_keepTracking) wait();
+            else               finish (SERVER_QUEUED);
+            break;
+
         case proto::ReplicationStatus::IN_PROGRESS:
+            if (_keepTracking) wait();
+            else               finish (SERVER_IN_PROGRESS);
+            break;
+
         case proto::ReplicationStatus::IS_CANCELLING:
-
-            // Go wait until a definitive response from the worker is received.
-
-            wait();
-            return;
+            if (_keepTracking) wait();
+            else               finish (SERVER_IS_CANCELLING);
+            break;
 
         case proto::ReplicationStatus::BAD:
             finish (SERVER_BAD);
@@ -383,6 +391,5 @@ StopRequestBase::analyze (proto::ReplicationStatus status) {
                                    "' received from server");
     }
 }
-
 
 }}} // namespace lsst::qserv::replica_core

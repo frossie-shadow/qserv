@@ -132,7 +132,8 @@ public:
                             << "** DONE **"
                             << "  targetRequestId: " << request->targetRequestId()
                             << "  " << request->performance());
-                    }
+                    },
+                    true
                 )
             );
 
@@ -160,7 +161,8 @@ public:
                             << "** DONE **"
                             << "  targetRequestId: " << request->targetRequestId()
                             << "  " << request->performance());
-                    }
+                    },
+                    true
                 )
             );
 

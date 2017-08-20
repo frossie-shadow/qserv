@@ -36,15 +36,15 @@ const char* usage =
     "  REPLICA_FIND          <worker> <db> <chunk>\n"
     "  REPLICA_FIND_ALL      <worker> <db>\n"
     "\n"
-    "  REQUEST_STATUS:REPLICA_CREATE   <worker> <id>\n"
-    "  REQUEST_STATUS:REPLICA_DELETE   <worker> <id>\n"
-    "  REQUEST_STATUS:REPLICA_FIND     <worker> <id>\n"
-    "  REQUEST_STATUS:REPLICA_FIND_ALL <worker> <id>\n"
+    "  REQUEST_STATUS:REPLICA_CREATE   <worker> <id> [-track]\n"
+    "  REQUEST_STATUS:REPLICA_DELETE   <worker> <id> [-track]\n"
+    "  REQUEST_STATUS:REPLICA_FIND     <worker> <id> [-track]\n"
+    "  REQUEST_STATUS:REPLICA_FIND_ALL <worker> <id> [-track]\n"
     "\n"
-    "  REQUEST_STOP:REPLICA_CREATE   <worker> <id>\n"
-    "  REQUEST_STOP:REPLICA_DELETE   <worker> <id>\n"
-    "  REQUEST_STOP:REPLICA_FIND     <worker> <id>\n"
-    "  REQUEST_STOP:REPLICA_FIND_ALL <worker> <id>";
+    "  REQUEST_STOP:REPLICA_CREATE   <worker> <id> [-track]\n"
+    "  REQUEST_STOP:REPLICA_DELETE   <worker> <id> [-track]\n"
+    "  REQUEST_STOP:REPLICA_FIND     <worker> <id> [-track]\n"
+    "  REQUEST_STOP:REPLICA_FIND_ALL <worker> <id> [-track]";
 
 
 /// (Run-time) assert for the minimum number of arguments
@@ -70,6 +70,7 @@ std::string sourceWorker;
 std::string db;
 std::string id;
 uint32_t chunk;
+bool keepTracking = false;
 
 
 /// Report result of the operation
@@ -141,56 +142,64 @@ bool test () {
                 worker, id,
                 [] (rc::StatusReplicationRequest::pointer request) {
                     printRequest<rc::StatusReplicationRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STATUS:REPLICA_DELETE"  == operation) {
             request = controller->statusOfDelete (
                 worker, id,
                 [] (rc::StatusDeleteRequest::pointer request) {
                     printRequest<rc::StatusDeleteRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STATUS:REPLICA_FIND"  == operation) {
             request = controller->statusOfFind (
                 worker, id,
                 [] (rc::StatusFindRequest::pointer request) {
                     printRequest<rc::StatusFindRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STATUS:REPLICA_FIND_ALL"  == operation) {
             request = controller->statusOfFindAll (
                 worker, id,
                 [] (rc::StatusFindAllRequest::pointer request) {
                     printRequest<rc::StatusFindAllRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STOP:REPLICA_CREATE"  == operation) {
             request = controller->stopReplication (
                 worker, id,
                 [] (rc::StopReplicationRequest::pointer request) {
                     printRequest<rc::StopReplicationRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STOP:REPLICA_DELETE"  == operation) {
             request = controller->stopReplicaDelete (
                 worker, id,
                 [] (rc::StopDeleteRequest::pointer request) {
                     printRequest<rc::StopDeleteRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STOP:REPLICA_FIND"  == operation) {
             request = controller->stopReplicaFind (
                 worker, id,
                 [] (rc::StopFindRequest::pointer request) {
                     printRequest<rc::StopFindRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else if ("REQUEST_STOP:REPLICA_FIND_ALL"  == operation) {
             request = controller->stopReplicaFindAll (
                 worker, id,
                 [] (rc::StopFindAllRequest::pointer request) {
                     printRequest<rc::StopFindAllRequest>(request);
-                });
+                },
+                keepTracking);
 
         } else {
             return false;
@@ -259,6 +268,14 @@ int main (int argc, const char* const argv[]) {
                                     "REQUEST_STOP:REPLICA_FIND_ALL"})) {
         ::assertArguments (argc, 5);
         id = argv[4];
+        if (argc > 5) {
+            if (argv[5] == std::string("-keep")) {
+                keepTracking = true;
+            } else {
+                std::cerr << ::usage << std::endl;
+                return 1;
+            }
+        }
 
     } else {
         std::cerr << ::usage << std::endl;

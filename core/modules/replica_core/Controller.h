@@ -212,12 +212,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be stopped
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the stop request
      */
     StopReplicationRequest_pointer stopReplication (const std::string                    &workerName,
                                                     const std::string                    &targetRequestId,
-                                                    StopReplicationRequest_callback_type  onFinish=nullptr);
+                                                    StopReplicationRequest_callback_type  onFinish=nullptr,
+                                                    bool                                  keepTracking=true);
 
     /**
      * Stop an outstanding replica deletion request.
@@ -225,12 +227,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be stopped
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the stop request
      */
     StopDeleteRequest_pointer stopReplicaDelete (const std::string               &workerName,
                                                  const std::string               &targetRequestId,
-                                                 StopDeleteRequest_callback_type  onFinish=nullptr);
+                                                 StopDeleteRequest_callback_type  onFinish=nullptr,
+                                                 bool                             keepTracking=true);
 
     /**
      * Stop an outstanding replica lookup request.
@@ -238,12 +242,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be stopped
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the stop request
      */
     StopFindRequest_pointer stopReplicaFind (const std::string             &workerName,
                                              const std::string             &targetRequestId,
-                                             StopFindRequest_callback_type  onFinish=nullptr);
+                                             StopFindRequest_callback_type  onFinish=nullptr,
+                                             bool                           keepTracking=true);
 
     /**
      * Stop an outstanding replicas lookup request.
@@ -251,12 +257,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be stopped
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the stop request
      */
     StopFindAllRequest_pointer stopReplicaFindAll (const std::string                &workerName,
                                                    const std::string                &targetRequestId,
-                                                   StopFindAllRequest_callback_type  onFinish=nullptr);
+                                                   StopFindAllRequest_callback_type  onFinish=nullptr,
+                                                   bool                              keepTracking=true);
 
     /**
      * Check the on-going status of an outstanding replication request.
@@ -264,12 +272,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be inspected
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the status inquery request
      */
     StatusReplicationRequest_pointer statusOfReplication (const std::string                      &workerName,
                                                           const std::string                      &targetRequestId,
-                                                          StatusReplicationRequest_callback_type  onFinish=nullptr);
+                                                          StatusReplicationRequest_callback_type  onFinish=nullptr,
+                                                          bool                                    keepTracking=false);
  
     /**
      * Check the on-going status of an outstanding replica deletion request.
@@ -277,12 +287,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be inspected
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the status inquery request
      */
     StatusDeleteRequest_pointer statusOfDelete (const std::string                 &workerName,
                                                 const std::string                 &targetRequestId,
-                                                StatusDeleteRequest_callback_type  onFinish=nullptr);
+                                                StatusDeleteRequest_callback_type  onFinish=nullptr,
+                                                bool                               keepTracking=false);
 
     /**
      * Check the on-going status of an outstanding replica lookup request.
@@ -290,12 +302,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be inspected
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the status inquery request
      */
     StatusFindRequest_pointer statusOfFind (const std::string               &workerName,
                                             const std::string               &targetRequestId,
-                                            StatusFindRequest_callback_type  onFinish=nullptr);
+                                            StatusFindRequest_callback_type  onFinish=nullptr,
+                                            bool                             keepTracking=false);
 
     /**
      * Check the on-going status of an outstanding (multiple) replicas lookup request.
@@ -303,12 +317,14 @@ public:
      * @param workerName      - the name of a worker node where the request was launched
      * @param targetRequestId - an identifier of a request to be inspected
      * @param onFinish        - a callback function to be called upon completion of the operation
+     * @param keepTracking    - keep tracking the request before it finishes or fails
      *
      * @return a pointer to the status inquery request
      */
     StatusFindAllRequest_pointer statusOfFindAll (const std::string                  &workerName,
                                                   const std::string                  &targetRequestId,
-                                                  StatusFindAllRequest_callback_type  onFinish=nullptr);
+                                                  StatusFindAllRequest_callback_type  onFinish=nullptr,
+                                                  bool                                keepTracking=false);
 
     /**
      * Tell the worker-side service to temporarily suspend processing requests

@@ -88,7 +88,8 @@ protected:
                        const char                                        *requestTypeName,
                        const std::string                                 &worker,
                        const std::string                                 &targetRequestId,
-                       lsst::qserv::proto::ReplicationReplicaRequestType  requestType);
+                       lsst::qserv::proto::ReplicationReplicaRequestType  requestType,
+                       bool                                               keepTracking=false);
 
     /**
       * This method is called when a connection is established and
@@ -110,6 +111,28 @@ protected:
     /// Callback handler for the asynchronious operation
     void responseReceived (const boost::system::error_code &ec,
                            size_t                           bytes_transferred);
+
+    /// Start the timer before attempting the previously failed
+    /// or successfull (if a status check is needed) step.
+    void wait ();
+
+    /// Callback handler for the asynchronious operation
+    void awaken (const boost::system::error_code &ec);
+
+    /// Start sending the status request to the destination worker
+    void sendStatus ();
+
+    /// Callback handler for the asynchronious operation
+    void statusSent (const boost::system::error_code &ec,
+                     size_t                           bytes_transferred);
+
+    /// Start receiving the status response from the destination worker
+    void receiveStatus ();
+
+    /// Callback handler for the asynchronious operation
+    void statusReceived (const boost::system::error_code &ec,
+                         size_t                           bytes_transferred);
+
     /**
      * Parse request-specific reply
      *
@@ -127,6 +150,9 @@ private:
 
     /// The type of the targer request (must match the identifier)
     lsst::qserv::proto::ReplicationReplicaRequestType  _requestType;
+
+    /// Track mode
+    bool _keepTracking;
 };
 
 
@@ -175,12 +201,14 @@ public:
      *                           is going to be inspected
      * @param onFinish         - an optional callback function to be called upon a completion of
      *                           the request.
+     * @param keepTracking     - keep tracking the request before it finishes or fails
      */
     static pointer create (ServiceProvider         &serviceProvider,
                            boost::asio::io_service &io_service,
                            const std::string       &worker,
                            const std::string       &targetRequestId,
-                           callback_type            onFinish) {
+                           callback_type            onFinish,
+                           bool                     keepTracking=false) {
 
         return StatusRequest<POLICY>::pointer (
             new StatusRequest<POLICY> (
@@ -190,7 +218,8 @@ public:
                 worker,
                 targetRequestId,
                 POLICY::requestType(),
-                onFinish));
+                onFinish,
+                keepTracking));
     }
 
 private:
@@ -204,14 +233,16 @@ private:
                    const std::string                                 &worker,
                    const std::string                                 &targetRequestId,
                    lsst::qserv::proto::ReplicationReplicaRequestType  requestType,
-                   callback_type                                      onFinish)
+                   callback_type                                      onFinish,
+                   bool                                               keepTracking)
 
         :   StatusRequestBase (serviceProvider,
                                io_service,
                                requestTypeName,
                                worker,
                                targetRequestId,
-                               requestType),
+                               requestType,
+                               keepTracking),
             _onFinish (onFinish)
     {}
 
