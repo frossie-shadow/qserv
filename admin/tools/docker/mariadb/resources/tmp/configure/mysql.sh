@@ -49,8 +49,7 @@ echo "-- "
 echo "-- Deploy scisql plugin"
 # TODO fixme
 echo "$MYSQLD_PASSWORD_ROOT" | scisql-deploy.py --mysql-plugin-dir=/usr/lib/mysql/plugin/ \
-    --mysql-bin=/usr/bin/mysql --mysql-socket="$MYSQLD_SOCKET" \
-    || echo "SCISQL FIX VERSION COMPATIBILITY CHECK"
+    --mysql-bin=/usr/bin/mysql --mysql-socket="$MYSQLD_SOCKET"
 
 echo "-- Stop mariadb server."
 mysqladmin -u root --password="$MYSQLD_PASSWORD_ROOT" shutdown
