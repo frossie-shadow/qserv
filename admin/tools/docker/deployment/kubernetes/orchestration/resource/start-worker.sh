@@ -28,7 +28,7 @@ fi
 
 # Wait for mysql to start
 while true; do
-    if mysql --socket "$MYSQLD_SOCK" --user=qserv  --skip-column-names \
+    if mysql --socket "$MYSQLD_SOCK" --user="MYSQLD_USER_QSERV"  --skip-column-names \
         -e "SELECT CONCAT('Mariadb is up: ', version())"
     then
         break
