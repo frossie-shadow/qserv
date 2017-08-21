@@ -1,6 +1,10 @@
+[client]
+socket=/qserv/data/mysql/mysql.sock
+
 [mysqld]
 
-datadir=/qserv/data
+datadir=/qserv/data/mysql
+socket=/qserv/data/mysql/mysql.sock
 
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links=0

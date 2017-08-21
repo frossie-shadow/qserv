@@ -2,7 +2,8 @@
 
 set -e
 
-MYSQLD_DATA_DIR="/qserv/data"
+MYSQLD_DATA_DIR="/qserv/data/mysql"
+MYSQLD_SOCKET="$MYSQLD_DATA_DIR/mysql.sock"
 # TODO: Set password using k8s
 MYSQLD_PASSWORD_ROOT="CHANGEME"
 USER="mysql"
@@ -48,7 +49,7 @@ echo "-- "
 echo "-- Deploy scisql plugin"
 # TODO fixme
 echo "$MYSQLD_PASSWORD_ROOT" | scisql-deploy.py --mysql-plugin-dir=/usr/lib/mysql/plugin/ \
-    --mysql-bin=/usr/bin/mysql --mysql-socket=/run/mysqld/mysqld.sock \
+    --mysql-bin=/usr/bin/mysql --mysql-socket="$MYSQLD_SOCKET" \
     || echo "SCISQL FIX VERSION COMPATIBILITY CHECK"
 
 echo "-- Stop mariadb server."
@@ -56,7 +57,5 @@ mysqladmin -u root --password="$MYSQLD_PASSWORD_ROOT" shutdown
 
 # TODO check if restart is required
 echo "-- Start mariadb server."
-mysqld&
-
-echo "INFO: MariaDB initialization SUCCESSFUL"
+mysqld || echo "ERROR: Fail to start MariaDB"
 
