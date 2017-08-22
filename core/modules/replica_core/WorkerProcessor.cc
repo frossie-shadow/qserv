@@ -86,12 +86,13 @@ WorkerProcessor::translateReplicationStatus (WorkerRequest::CompletionStatus sta
 }
 
 WorkerProcessor::WorkerProcessor (ServiceProvider      &serviceProvider,
-                                  WorkerRequestFactory &requestFactory)
+                                  WorkerRequestFactory &requestFactory,
+                                  const std::string    &worker)
 
     :   _serviceProvider (serviceProvider),
         _requestFactory  (requestFactory),
-
-        _state (STATE_IS_STOPPED) {
+        _worker          (worker),
+        _state           (STATE_IS_STOPPED) {
 }
 
 WorkerProcessor::~WorkerProcessor () {
@@ -162,6 +163,7 @@ WorkerProcessor::enqueueForReplication (const proto::ReplicationRequestReplicate
 
     try {
         WorkerRequest::pointer ptr = _requestFactory.createReplicationRequest (
+            _worker,
             request.id(),
             request.priority(),
             request.database(),
@@ -208,6 +210,7 @@ WorkerProcessor::enqueueForDeletion (const proto::ReplicationRequestDelete &requ
 
     WorkerRequest::pointer ptr =
         _requestFactory.createDeleteRequest (
+            _worker,
             request.id(),
             request.priority(),
             request.database(),
@@ -233,6 +236,7 @@ WorkerProcessor::enqueueForFind (const proto::ReplicationRequestFind &request,
 
     WorkerFindRequest::pointer ptr =
         _requestFactory.createFindRequest (
+            _worker,
             request.id(),
             request.priority(),
             request.database(),
@@ -261,6 +265,7 @@ WorkerProcessor::enqueueForFindAll (const proto::ReplicationRequestFindAll &requ
 
     WorkerFindAllRequest::pointer ptr =
         _requestFactory.createFindAllRequest (
+            _worker,
             request.id(),
             request.priority(),
             request.database());
@@ -471,7 +476,7 @@ WorkerProcessor::setServiceResponseInfo (const WorkerRequest::pointer         &r
         info->set_priority     (ptr->priority());
         info->set_database     (ptr->database());
         info->set_chunk        (ptr->chunk());
-        info->set_worker       (ptr->worker());
+        info->set_worker       (ptr->sourceWorker());
 
     } else if (
         WorkerDeleteRequest::pointer ptr =

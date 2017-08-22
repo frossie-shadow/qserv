@@ -179,6 +179,7 @@ protected:
      * The normal constructor of the class.
      */
     WorkerRequest (ServiceProvider   &serviceProvider,
+                   const std::string &worker,
                    const std::string &type,
                    const std::string &id,
                    int                priority);
@@ -187,6 +188,7 @@ protected:
 
     ServiceProvider  &_serviceProvider;
 
+    std::string _worker;
     std::string _type;
     std::string _id;
 

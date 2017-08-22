@@ -45,21 +45,25 @@ namespace qserv {
 namespace replica_core {
 
 WorkerServer::pointer
-WorkerServer::create (ServiceProvider &serviceProvider,
-                      WorkerProcessor &processor) {
+WorkerServer::create (ServiceProvider      &serviceProvider,
+                      WorkerRequestFactory &requestFactory,
+                      const std::string    &workerName) {
 
     return WorkerServer::pointer (
         new WorkerServer (
             serviceProvider,
-            processor));
+            requestFactory,
+            workerName));
 }
 
-WorkerServer::WorkerServer (ServiceProvider &serviceProvider,
-                            WorkerProcessor &processor)
+WorkerServer::WorkerServer (ServiceProvider      &serviceProvider,
+                            WorkerRequestFactory &requestFactory,
+                            const std::string    &workerName)
 
-    :   _serviceProvider (serviceProvider),
-        _processor       (processor),
-        _workerInfo      (serviceProvider.config().workerInfo(serviceProvider.config().workerName())),
+    :   _serviceProvider {serviceProvider},
+        _workerName      {workerName},
+        _processor       {serviceProvider, requestFactory, workerName},
+        _workerInfo      {serviceProvider.config().workerInfo(workerName)},
         _io_service (),
         _acceptor (
             _io_service,

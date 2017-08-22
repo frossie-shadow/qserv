@@ -75,11 +75,8 @@ namespace lsst {
 namespace qserv {
 namespace replica_core {
 
-Configuration::Configuration (const std::string &configFile,
-                              const std::string &workerName)
-    :   _configFile (configFile),
-        _workerName (workerName),
-
+Configuration::Configuration (const std::string &configFile)
+    :   _configFile                 (configFile),
         _workers                    (),
         _requestBufferSizeBytes     (defaultRequestBufferSizeBytes),
         _retryTimeoutSec            (defaultRetryTimeoutSec),
@@ -90,9 +87,6 @@ Configuration::Configuration (const std::string &configFile,
         _workerNumProcessingThreads (defaultWorkerNumProcessingThreads) {
 
     loadConfiguration();
-    
-    if (!isKnownWorker(_workerName))
-        throw std::out_of_range("Configuration::Configuration() uknown worker name '"+_workerName+"'");
 }
 
 Configuration::~Configuration () {

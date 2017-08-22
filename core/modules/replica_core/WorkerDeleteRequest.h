@@ -67,6 +67,7 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database,
@@ -102,6 +103,7 @@ protected:
      * The normal constructor of the class.
      */
     WorkerDeleteRequest (ServiceProvider   &serviceProvider,
+                         const std::string &worker,
                          const std::string &id,
                          int                priority,
                          const std::string &database,
@@ -112,7 +114,6 @@ protected:
 
     std::string  _database;
     unsigned int _chunk;
-
 
     /// Extended status of the replica deletion request
     ReplicaDeleteInfo _deleteInfo;
@@ -136,6 +137,7 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database,
@@ -163,6 +165,7 @@ private:
      * The normal constructor of the class.
      */
     WorkerDeleteRequestX (ServiceProvider   &serviceProvider,
+                          const std::string &worker,
                           const std::string &id,
                           int                priority,
                           const std::string &database,

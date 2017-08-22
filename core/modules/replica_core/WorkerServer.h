@@ -36,6 +36,7 @@
 
 // Qserv headers
 
+#include "replica_core/WorkerProcessor.h"
 #include "replica_core/WorkerServerConnection.h"
 
 // Forward declarations
@@ -51,7 +52,7 @@ namespace replica_core {
 
 class ServiceProvider;
 class WorkerInfo;
-class WorkerProcessor;
+class WorkerRequestFactory;
 
 /**
   * Class WorkerServer is used for handling incomming connections to
@@ -72,16 +73,25 @@ public:
      * low-level pointers).
      *
      * @param serviceProvider - for configuration, etc. services
-     * @param processor       - a processor of requests
+     * @param requestFactory  - the factory of requests
+     * @workerName            - the name of a worker this instance represents
      */
-    static pointer create (ServiceProvider &serviceProvider,
-                           WorkerProcessor &processor);
+    static pointer create (ServiceProvider      &serviceProvider,
+                           WorkerRequestFactory &requestFactory,
+                           const std::string    &workerName);
 
     // Default construction and copy semantics are proxibited
 
     WorkerServer () = delete;
     WorkerServer (WorkerServer const&) = delete;
     WorkerServer & operator= (WorkerServer const&) = delete;
+
+    /// Return the name of a worker this server runs for
+    const std::string& worker () const { return _workerName; }
+
+    /// The processor API can be used for detailed monitoring of
+    /// the on-going activities and statistics collection if needed.
+    const WorkerProcessor& processor () const { return _processor; }
 
     /**
      * Begin listening for and processing incoming connections
@@ -94,10 +104,12 @@ private:
      * Construct the server with the specified configuration.
      *
      * @param serviceProvider - for configuration, etc. services
-     * @param processor       - a processor of requests
+     * @param requestFactory  - the factory of requests
+     * @workerName            - the name of a worker this instance represents
      */
-    explicit WorkerServer (ServiceProvider &serviceProvider,
-                           WorkerProcessor &processor);
+    explicit WorkerServer (ServiceProvider      &serviceProvider,
+                           WorkerRequestFactory &requestFactory,
+                           const std::string    &workerName);
 
     /**
      * Begin (asynchrnonously) accepting connection requests.
@@ -120,9 +132,12 @@ private:
     // Parameters of the object
 
     ServiceProvider &_serviceProvider;
-    WorkerProcessor &_processor;
+    std::string      _workerName;
 
-    /// Cached parameters of the worker
+    // Cached parameters of the worker
+
+    WorkerProcessor _processor;
+
     const WorkerInfo &_workerInfo;
 
     // The mutable state of the object

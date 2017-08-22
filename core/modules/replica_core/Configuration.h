@@ -78,14 +78,10 @@ public:
      * Construct the object
      *
      * The configuration can be used by controller or worker services.
-     * If it's meant to be used by the worker service then the name of
-     * of the worker must be provided.
      *
      * @param configFile - the name of a configuraiton file
-     * @param workerName - the name of a worker (only applies for workers)
-     */
-    explicit Configuration (const std::string &configFile,
-                            const std::string &workerName=std::string());
+\     */
+    explicit Configuration (const std::string &configFile);
 
     /// Destructor
     ~Configuration();
@@ -118,9 +114,6 @@ public:
     // -----------------------------------------------------
     // -- Configuration parameters of the worker services --
     // -----------------------------------------------------
-
-    /// Return the name of the current worker (if the one is set via the constructor)
-    const std::string& workerName () const { return _workerName; }
 
     /**
      * Return 'true' if the specified work is known to the configuraion
@@ -162,7 +155,6 @@ private:
     // Parameters of the object
 
     const std::string _configFile;
-    const std::string _workerName;
 
     // Cached values of the parameters
 

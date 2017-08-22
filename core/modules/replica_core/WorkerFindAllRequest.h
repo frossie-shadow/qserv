@@ -67,6 +67,7 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database);
@@ -105,6 +106,7 @@ protected:
      * The normal constructor of the class.
      */
     WorkerFindAllRequest (ServiceProvider   &serviceProvider,
+                          const std::string &worker,
                           const std::string &id,
                           int                priority,
                           const std::string &database);
@@ -137,6 +139,7 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database);
@@ -163,6 +166,7 @@ private:
      * The normal constructor of the class.
      */
     WorkerFindAllRequestX (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database);

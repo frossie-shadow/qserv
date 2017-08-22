@@ -47,6 +47,7 @@ namespace replica_core {
 
 WorkerDeleteRequest::pointer
 WorkerDeleteRequest::create (ServiceProvider   &serviceProvider,
+                             const std::string &worker,
                              const std::string &id,
                              int                priority,
                              const std::string &database,
@@ -54,6 +55,7 @@ WorkerDeleteRequest::create (ServiceProvider   &serviceProvider,
 
     return WorkerDeleteRequest::pointer (
         new WorkerDeleteRequest (serviceProvider,
+                                 worker,
                                  id,
                                  priority,
                                  database,
@@ -61,11 +63,13 @@ WorkerDeleteRequest::create (ServiceProvider   &serviceProvider,
 }
 
 WorkerDeleteRequest::WorkerDeleteRequest (ServiceProvider   &serviceProvider,
+                                          const std::string &worker,
                                           const std::string &id,
                                           int                priority,
                                           const std::string &database,
                                           unsigned int       chunk)
     :   WorkerRequest (serviceProvider,
+                       worker,
                        "DELETE",
                        id,
                        priority),
@@ -82,8 +86,8 @@ bool
 WorkerDeleteRequest::execute (bool incremental) {
 
    LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  db: "     << database()
-         << "  chunk: "  << chunk());
+         << "  db: " << database()
+         << "  chunk: " << chunk());
 
     // TODO: provide the actual implementation instead of the dummy one.
 
@@ -100,6 +104,7 @@ WorkerDeleteRequest::execute (bool incremental) {
 
 WorkerDeleteRequestX::pointer
 WorkerDeleteRequestX::create (ServiceProvider   &serviceProvider,
+                              const std::string &worker,
                               const std::string &id,
                               int                priority,
                               const std::string &database,
@@ -107,6 +112,7 @@ WorkerDeleteRequestX::create (ServiceProvider   &serviceProvider,
 
     return WorkerDeleteRequestX::pointer (
         new WorkerDeleteRequestX (serviceProvider,
+                                  worker,
                                   id,
                                   priority,
                                   database,
@@ -114,11 +120,13 @@ WorkerDeleteRequestX::create (ServiceProvider   &serviceProvider,
 }
 
 WorkerDeleteRequestX::WorkerDeleteRequestX (ServiceProvider   &serviceProvider,
+                                            const std::string &worker,
                                             const std::string &id,
                                             int                priority,
                                             const std::string &database,
                                             unsigned int       chunk)
     :   WorkerDeleteRequest (serviceProvider,
+                             worker,
                              id,
                              priority,
                              database,

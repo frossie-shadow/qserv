@@ -25,25 +25,26 @@ void service (const std::string &configFileName,
               const std::string &workerName) {
     
     try {
-        rc::Configuration            config        {configFileName, workerName};
-        rc::ServiceProvider          provider      {config};
-        rc::WorkerRequestFactory     requestFactory{provider};
-        rc::WorkerProcessor          processor     {provider, requestFactory};
+        rc::Configuration        config        {configFileName};
+        rc::ServiceProvider      provider      {config};
+        rc::WorkerRequestFactory requestFactory{provider};
 
-        rc::WorkerServer::pointer server = rc::WorkerServer::create (provider, processor);
+        rc::WorkerServer::pointer server =
+            rc::WorkerServer::create (provider, requestFactory, workerName);
 
-        std::thread requestsAcceptorThread (
-            [&server]() { server->run(); }
-        );
+        std::thread requestsAcceptorThread ([server]() {
+            server->run();
+        });
         rc::BlockPost blockPost (1000, 5000);
         while (true) {
             blockPost.wait();
             LOGS(_log, LOG_LVL_INFO, "HEARTBEAT"
-                << "  processor: " << rc::WorkerProcessor::state2string(processor.state())
+                << "  worker: " << server->worker()
+                << "  processor: " << rc::WorkerProcessor::state2string(server->processor().state())
                 << "  new, in-progress, finished: "
-                << processor.numNewRequests() << ", "
-                << processor.numInProgressRequests() << ", "
-                << processor.numFinishedRequests());
+                << server->processor().numNewRequests() << ", "
+                << server->processor().numInProgressRequests() << ", "
+                << server->processor().numFinishedRequests());
         }
         requestsAcceptorThread.join();
 

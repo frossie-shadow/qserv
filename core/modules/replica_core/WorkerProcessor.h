@@ -131,7 +131,8 @@ public:
      * The constructor of the class.
      */
     WorkerProcessor (ServiceProvider      &serviceProvider,
-                     WorkerRequestFactory &requestFactory);
+                     WorkerRequestFactory &requestFactory,
+                     const std::string    &worker);
 
     /// Destructor
     virtual ~WorkerProcessor ();
@@ -448,6 +449,9 @@ private:
 
     /// A factory of request objects
     WorkerRequestFactory &_requestFactory;
+
+    /// The name of the worker
+    std::string _worker;
 
     /// Current state of the processor
     State _state;

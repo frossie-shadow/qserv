@@ -62,39 +62,43 @@ WorkerRequestFactory::~WorkerRequestFactory () {
 }
 
 WorkerRequestFactory::WorkerReplicationRequest_pointer
-WorkerRequestFactory::createReplicationRequest (const std::string &id,
+WorkerRequestFactory::createReplicationRequest (const std::string &worker,
+                                                const std::string &id,
                                                 int                priority,
                                                 const std::string &database,
                                                 unsigned int       chunk,
-                                                const std::string &worker) {
+                                                const std::string &sourceWorker) {
     return WorkerReplicationRequest::create (
-        _serviceProvider, id, priority, database, chunk, worker);
+        _serviceProvider, worker, id, priority, database, chunk, sourceWorker);
 }
 
 WorkerRequestFactory::WorkerDeleteRequest_pointer
-WorkerRequestFactory::createDeleteRequest (const std::string &id,
+WorkerRequestFactory::createDeleteRequest (const std::string &worker,
+                                           const std::string &id,
                                            int                priority,
                                            const std::string &database,
                                            unsigned int       chunk) {
     return WorkerDeleteRequest::create (
-        _serviceProvider, id, priority, database, chunk);
+        _serviceProvider, worker, id, priority, database, chunk);
 }
 
 WorkerRequestFactory::WorkerFindRequest_pointer
-WorkerRequestFactory::createFindRequest (const std::string &id,
+WorkerRequestFactory::createFindRequest (const std::string &worker,
+                                         const std::string &id,
                                          int                priority,
                                          const std::string &database,
                                          unsigned int       chunk) {
     return WorkerFindRequest::create (
-        _serviceProvider, id, priority, database, chunk);
+        _serviceProvider, worker, id, priority, database, chunk);
 }
 
 WorkerRequestFactory::WorkerFindAllRequest_pointer
-WorkerRequestFactory::createFindAllRequest (const std::string &id,
+WorkerRequestFactory::createFindAllRequest (const std::string &worker,
+                                            const std::string &id,
                                             int                priority,
                                             const std::string &database) {
     return WorkerFindAllRequest::create (
-        _serviceProvider, id, priority, database);
+        _serviceProvider, worker, id, priority, database);
 }
 
 
@@ -110,39 +114,43 @@ WorkerRequestFactoryX::~WorkerRequestFactoryX () {
 }
 
 WorkerRequestFactory::WorkerReplicationRequest_pointer
-WorkerRequestFactoryX::createReplicationRequest (const std::string &id,
+WorkerRequestFactoryX::createReplicationRequest (const std::string &worker,
+                                                 const std::string &id,
                                                  int                priority,
                                                  const std::string &database,
                                                  unsigned int       chunk,
-                                                 const std::string &worker) {
+                                                 const std::string &sourceWorker) {
     return WorkerReplicationRequestX::create (
-        _serviceProvider, id, priority, database, chunk, worker);
+        _serviceProvider, worker, id, priority, database, chunk, sourceWorker);
 }
 
 WorkerRequestFactory::WorkerDeleteRequest_pointer
-WorkerRequestFactoryX::createDeleteRequest (const std::string &id,
+WorkerRequestFactoryX::createDeleteRequest (const std::string &worker,
+                                            const std::string &id,
                                             int                priority,
                                             const std::string &database,
                                             unsigned int       chunk) {
     return WorkerDeleteRequestX::create (
-        _serviceProvider, id, priority, database, chunk);
+        _serviceProvider, worker, id, priority, database, chunk);
 }
 
 WorkerRequestFactory::WorkerFindRequest_pointer
-WorkerRequestFactoryX::createFindRequest (const std::string &id,
+WorkerRequestFactoryX::createFindRequest (const std::string &worker,
+                                          const std::string &id,
                                           int                priority,
                                           const std::string &database,
                                           unsigned int       chunk) {
     return WorkerFindRequestX::create (
-        _serviceProvider, id, priority, database, chunk);
+        _serviceProvider, worker, id, priority, database, chunk);
 }
 
 WorkerRequestFactory::WorkerFindAllRequest_pointer
-WorkerRequestFactoryX::createFindAllRequest (const std::string &id,
+WorkerRequestFactoryX::createFindAllRequest (const std::string &worker,
+                                             const std::string &id,
                                              int                priority,
                                              const std::string &database) {
     return WorkerFindAllRequestX::create (
-        _serviceProvider, id, priority, database);
+        _serviceProvider, worker, id, priority, database);
 }
 
 }}} // namespace lsst::qserv::replica_core

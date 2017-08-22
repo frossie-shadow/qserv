@@ -67,10 +67,12 @@ WorkerRequest::status2string (CompletionStatus status) {
 }
 
 WorkerRequest::WorkerRequest (ServiceProvider   &serviceProvider,
+                              const std::string &worker,
                               const std::string &type,
                               const std::string &id,
                               int                priority)
     :   _serviceProvider  (serviceProvider),
+        _worker           (worker),
         _type             (type),
         _id               (id),
         _priority         (priority),

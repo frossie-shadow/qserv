@@ -49,39 +49,43 @@ namespace replica_core {
 
 WorkerReplicationRequest::pointer
 WorkerReplicationRequest::create (ServiceProvider   &serviceProvider,
+                                  const std::string &worker,
                                   const std::string &id,
                                   int                priority,
                                   const std::string &database,
                                   unsigned int       chunk,
-                                  const std::string &worker) {
+                                  const std::string &sourceWorker) {
 
     return WorkerReplicationRequest::pointer (
         new WorkerReplicationRequest (serviceProvider,
+                                      worker,
                                       id,
                                       priority,
                                       database,
                                       chunk,
-                                      worker));
+                                      sourceWorker));
 }
 
 WorkerReplicationRequest::WorkerReplicationRequest (ServiceProvider   &serviceProvider,
+                                                    const std::string &worker,
                                                     const std::string &id,
                                                     int                priority,
                                                     const std::string &database,
                                                     unsigned int       chunk,
-                                                    const std::string &worker)
+                                                    const std::string &sourceWorker)
     :   WorkerRequest (serviceProvider,
+                       worker,
                        "REPLICATE",
                        id,
                        priority),
 
         _database        (database),
         _chunk           (chunk),
-        _worker          (worker),
+        _sourceWorker    (sourceWorker),
         _replicationInfo () {
 
-    _serviceProvider.assertWorkerIsValid       (worker);
-    _serviceProvider.assertWorkersAreDifferent (_serviceProvider.config().workerName(), worker);
+    _serviceProvider.assertWorkerIsValid       (sourceWorker);
+    _serviceProvider.assertWorkersAreDifferent (worker, sourceWorker);
 }
 
 
@@ -92,9 +96,9 @@ bool
 WorkerReplicationRequest::execute (bool incremental) {
 
    LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  db: "     << database()
-         << "  chunk: "  << chunk()
-         << "  worker: " << worker());
+         << "  db: " << database()
+         << "  chunk: " << chunk()
+         << "  sourceWorker: " << sourceWorker());
 
     // TODO: provide the actual implementation instead of the dummy one.
 
@@ -111,33 +115,37 @@ WorkerReplicationRequest::execute (bool incremental) {
 
 WorkerReplicationRequestX::pointer
 WorkerReplicationRequestX::create (ServiceProvider   &serviceProvider,
+                                   const std::string &worker,
                                    const std::string &id,
                                    int                priority,
                                    const std::string &database,
                                    unsigned int       chunk,
-                                   const std::string &worker) {
+                                   const std::string &sourceWorker) {
 
     return WorkerReplicationRequestX::pointer (
         new WorkerReplicationRequestX (serviceProvider,
+                                       worker,
                                        id,
                                        priority,
                                        database,
                                        chunk,
-                                       worker));
+                                       sourceWorker));
 }
 
 WorkerReplicationRequestX::WorkerReplicationRequestX (ServiceProvider   &serviceProvider,
+                                                      const std::string &worker,
                                                       const std::string &id,
                                                       int                priority,
                                                       const std::string &database,
                                                       unsigned int       chunk,
-                                                      const std::string &worker)
+                                                      const std::string &sourceWorker)
     :   WorkerReplicationRequest (serviceProvider,
+                                  worker,
                                   id,
                                   priority,
                                   database,
                                   chunk,
-                                  worker) {
+                                  sourceWorker) {
 }
 
 WorkerReplicationRequestX::~WorkerReplicationRequestX () {

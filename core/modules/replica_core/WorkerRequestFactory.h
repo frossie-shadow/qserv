@@ -91,11 +91,12 @@ public:
      * @return a pointer to the newely created object
      */
     virtual WorkerReplicationRequest_pointer createReplicationRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
             unsigned int       chunk,
-            const std::string &worker);
+            const std::string &sourceWorker);
 
    /**
      * Create an instance of the replica deletion request
@@ -105,6 +106,7 @@ public:
      * @return a pointer to the newely created object
      */
     virtual WorkerDeleteRequest_pointer createDeleteRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
@@ -118,6 +120,7 @@ public:
      * @return a pointer to the newely created object
      */
     virtual WorkerFindRequest_pointer createFindRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
@@ -131,6 +134,7 @@ public:
      * @return a pointer to the newely created object
      */
     virtual WorkerFindAllRequest_pointer createFindAllRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database);
@@ -174,11 +178,12 @@ public:
      * @return a pointer to the newely created object
      */
     WorkerReplicationRequest_pointer createReplicationRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
             unsigned int       chunk,
-            const std::string &worker) override;
+            const std::string &sourceWorker) override;
 
    /**
      * Create an instance of the replica deletion request
@@ -188,6 +193,7 @@ public:
      * @return a pointer to the newely created object
      */
     WorkerDeleteRequest_pointer createDeleteRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
@@ -201,6 +207,7 @@ public:
      * @return a pointer to the newely created object
      */
     WorkerFindRequest_pointer createFindRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database,
@@ -214,6 +221,7 @@ public:
      * @return a pointer to the newely created object
      */
     WorkerFindAllRequest_pointer createFindAllRequest (
+            const std::string &worker,
             const std::string &id,
             int                priority,
             const std::string &database) override;

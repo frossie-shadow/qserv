@@ -48,6 +48,7 @@ namespace replica_core {
 
 WorkerFindRequest::pointer
 WorkerFindRequest::create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database,
@@ -55,6 +56,7 @@ WorkerFindRequest::create (ServiceProvider   &serviceProvider,
 
     return WorkerFindRequest::pointer (
         new WorkerFindRequest (serviceProvider,
+                               worker,
                                id,
                                priority,
                                database,
@@ -62,11 +64,13 @@ WorkerFindRequest::create (ServiceProvider   &serviceProvider,
 }
 
 WorkerFindRequest::WorkerFindRequest (ServiceProvider   &serviceProvider,
+                                      const std::string &worker,
                                       const std::string &id,
                                       int                priority,
                                       const std::string &database,
                                       unsigned int       chunk)
     :   WorkerRequest (serviceProvider,
+                       worker,
                        "FIND",
                        id,
                        priority),
@@ -88,16 +92,16 @@ bool
 WorkerFindRequest::execute (bool incremental) {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  worker: "   << serviceProvider().config().workerName()
+         << "  worker: " << _worker
          << "  database: " << database()
-         << "  chunk: "    << chunk());
+         << "  chunk: " << chunk());
 
     // Set up the result if the operation is over
 
     bool completed = WorkerRequest::execute(incremental);
     if (completed) _replicaInfo =
         ReplicaInfo (ReplicaInfo::COMPLETE,
-                     serviceProvider().config().workerName(),
+                     _worker,
                      database(),
                      chunk());
     return completed;
@@ -110,6 +114,7 @@ WorkerFindRequest::execute (bool incremental) {
 
 WorkerFindRequestX::pointer
 WorkerFindRequestX::create (ServiceProvider   &serviceProvider,
+                            const std::string &worker,
                             const std::string &id,
                             int                priority,
                             const std::string &database,
@@ -117,6 +122,7 @@ WorkerFindRequestX::create (ServiceProvider   &serviceProvider,
 
     return WorkerFindRequestX::pointer (
         new WorkerFindRequestX (serviceProvider,
+                                worker,
                                 id,
                                 priority,
                                 database,
@@ -124,11 +130,13 @@ WorkerFindRequestX::create (ServiceProvider   &serviceProvider,
 }
 
 WorkerFindRequestX::WorkerFindRequestX (ServiceProvider   &serviceProvider,
+                                        const std::string &worker,
                                         const std::string &id,
                                         int                priority,
                                         const std::string &database,
                                         unsigned int       chunk)
     :   WorkerFindRequest (serviceProvider,
+                           worker,
                            id,
                            priority,
                            database,
@@ -143,9 +151,9 @@ bool
 WorkerFindRequestX::execute (bool incremental) {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  worker: "   << serviceProvider().config().workerName()
+         << "  worker: " << _worker
          << "  database: " << database()
-         << "  chunk: "    << chunk());
+         << "  chunk: " << chunk());
 
     // TODO: provide the actual implementation instead of the dummy one.
 

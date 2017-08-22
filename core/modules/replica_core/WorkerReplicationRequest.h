@@ -68,11 +68,12 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database,
                            unsigned int       chunk,
-                           const std::string &worker);
+                           const std::string &sourceWorker);
 
     // Default construction and copy semantics are proxibited
 
@@ -85,9 +86,9 @@ public:
 
     // Trivial accessors
 
-    const std::string& database () const { return _database; }
-    unsigned int       chunk    () const { return _chunk; }
-    const std::string& worker   () const { return _worker; }
+    const std::string& database     () const { return _database; }
+    unsigned int       chunk        () const { return _chunk; }
+    const std::string& sourceWorker () const { return _sourceWorker; }
 
     /// Return extended status of the request
     const ReplicaCreateInfo& replicationInfo () const { return _replicationInfo; }
@@ -105,18 +106,19 @@ protected:
      * The normal constructor of the class.
      */
     WorkerReplicationRequest (ServiceProvider   &serviceProvider,
+                              const std::string &worker,
                               const std::string &id,
                               int                priority,
                               const std::string &database,
                               unsigned int       chunk,
-                              const std::string &worker);
+                              const std::string &sourceWorker);
 protected:
 
     // Parameters of the object
 
     std::string  _database;
     unsigned int _chunk;
-    std::string  _worker;
+    std::string  _sourceWorker;
 
     /// Extended status of the replication request
     ReplicaCreateInfo _replicationInfo;
@@ -141,11 +143,12 @@ public:
      * low-level pointers).
      */
     static pointer create (ServiceProvider   &serviceProvider,
+                           const std::string &worker,
                            const std::string &id,
                            int                priority,
                            const std::string &database,
                            unsigned int       chunk,
-                           const std::string &worker);
+                           const std::string &sourceWorker);
 
     // Default construction and copy semantics are proxibited
 
@@ -169,11 +172,12 @@ private:
      * The normal constructor of the class.
      */
     WorkerReplicationRequestX (ServiceProvider   &serviceProvider,
+                               const std::string &worker,
                                const std::string &id,
                                int                priority,
                                const std::string &database,
                                unsigned int       chunk,
-                               const std::string &worker);
+                               const std::string &sourceWorker);
 };
 
 

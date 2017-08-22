@@ -49,22 +49,26 @@ namespace replica_core {
 
 WorkerFindAllRequest::pointer
 WorkerFindAllRequest::create (ServiceProvider   &serviceProvider,
+                              const std::string &worker,
                               const std::string &id,
                               int                priority,
                               const std::string &database) {
 
     return WorkerFindAllRequest::pointer (
         new WorkerFindAllRequest (serviceProvider,
+                                  worker,
                                   id,
                                   priority,
                                   database));
 }
 
 WorkerFindAllRequest::WorkerFindAllRequest (ServiceProvider   &serviceProvider,
+                                            const std::string &worker,
                                             const std::string &id,
                                             int                priority,
                                             const std::string &database)
     :   WorkerRequest (serviceProvider,
+                       worker,
                        "FIND-ALL",
                        id,
                        priority),
@@ -88,7 +92,7 @@ bool
 WorkerFindAllRequest::execute (bool incremental) {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  worker: "   << serviceProvider().config().workerName()
+         << "  worker: "   << _worker
          << "  database: " << database());
 
     // Set up the result if the operation is over
@@ -98,7 +102,7 @@ WorkerFindAllRequest::execute (bool incremental) {
         for (unsigned int chunk=0; chunk<8; ++chunk)
             _replicaInfoCollection.emplace_back (
                 ReplicaInfo::COMPLETE,
-                serviceProvider().config().workerName(),
+                _worker,
                 database(),
                 chunk);
 
@@ -112,22 +116,26 @@ WorkerFindAllRequest::execute (bool incremental) {
 
 WorkerFindAllRequestX::pointer
 WorkerFindAllRequestX::create (ServiceProvider   &serviceProvider,
+                               const std::string &worker,
                                const std::string &id,
                                int                priority,
                                const std::string &database) {
 
     return WorkerFindAllRequestX::pointer (
         new WorkerFindAllRequestX (serviceProvider,
+                                   worker,
                                    id,
                                    priority,
                                    database));
 }
 
 WorkerFindAllRequestX::WorkerFindAllRequestX (ServiceProvider   &serviceProvider,
+                                              const std::string &worker,
                                               const std::string &id,
                                               int                priority,
                                               const std::string &database)
     :   WorkerFindAllRequest (serviceProvider,
+                              worker,
                               id,
                               priority,
                               database) {
@@ -140,7 +148,7 @@ bool
 WorkerFindAllRequestX::execute (bool incremental) {
 
     LOGS(_log, LOG_LVL_DEBUG, context() << "execute"
-         << "  worker: "   << serviceProvider().config().workerName()
+         << "  worker: " << _worker
          << "  database: " << database());
 
     // TODO: provide the actual implementation instead of the dummy one.
