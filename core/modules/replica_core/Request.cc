@@ -40,7 +40,6 @@
 #include "replica_core/Configuration.h"
 #include "replica_core/ProtocolBuffer.h"
 #include "replica_core/ServiceProvider.h"
-#include "replica_core/WorkerInfo.h"
 
 namespace {
 
@@ -106,8 +105,8 @@ Request::Request (ServiceProvider         &serviceProvider,
         _performance   (),
 
         _bufferPtr     (new ProtocolBuffer(serviceProvider.config().requestBufferSizeBytes())),
-        _workerInfoPtr (serviceProvider.workerInfo(worker)),
-        _timerIvalSec  (serviceProvider.config().defaultRetryTimeoutSec()),
+        _workerInfo    (serviceProvider.config().workerInfo(worker)),
+        _timerIvalSec  (serviceProvider.config().retryTimeoutSec()),
 
         _resolver (io_service),
         _socket   (io_service),
@@ -241,8 +240,8 @@ Request::resolve () {
     LOGS(_log, LOG_LVL_DEBUG, context() << "resolve");
 
     boost::asio::ip::tcp::resolver::query query (
-        _workerInfoPtr->svcHost(),
-        _workerInfoPtr->svcPort()
+        _workerInfo.svcHost,
+        std::to_string(_workerInfo.svcPort)
     );
     _resolver.async_resolve (
         query,

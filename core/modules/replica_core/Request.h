@@ -347,7 +347,7 @@ protected:
     // To be initialized from a configuration via the ServiceProvider
     // then cached for the lifespan of the object.
 
-    std::shared_ptr<WorkerInfo> _workerInfoPtr;
+    const WorkerInfo &_workerInfo;
 
     unsigned int _timerIvalSec;
 

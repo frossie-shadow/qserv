@@ -50,6 +50,7 @@ namespace replica_core {
 // Forward declarations
 
 class ServiceProvider;
+class WorkerInfo;
 class WorkerProcessor;
 
 /**
@@ -120,6 +121,9 @@ private:
 
     ServiceProvider &_serviceProvider;
     WorkerProcessor &_processor;
+
+    /// Cached parameters of the worker
+    const WorkerInfo &_workerInfo;
 
     // The mutable state of the object
 

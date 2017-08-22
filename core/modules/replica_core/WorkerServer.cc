@@ -59,12 +59,13 @@ WorkerServer::WorkerServer (ServiceProvider &serviceProvider,
 
     :   _serviceProvider (serviceProvider),
         _processor       (processor),
+        _workerInfo      (serviceProvider.config().workerInfo(serviceProvider.config().workerName())),
         _io_service (),
         _acceptor (
             _io_service,
             boost::asio::ip::tcp::endpoint (
                 boost::asio::ip::tcp::v4(),
-                _serviceProvider.config().workerSvcPort())) {
+                _workerInfo.svcPort)) {
 
     // Set the socket reuse option to allow recycling ports after catastrifc
     // failures.

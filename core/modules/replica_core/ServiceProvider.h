@@ -44,7 +44,6 @@ namespace qserv {
 namespace replica_core {
 
 class Configuration;
-class WorkerInfo;
 
 /**
   * Class ServiceProvider hosts various serviceses for the master server.
@@ -70,16 +69,6 @@ public:
      * Return a reference to the configuration service
      */
     Configuration& config () const { return _configuration; }
-
-    /**
-     * Return the names of known workers.
-     */
-    std::vector<std::string> workers () const;
-
-    /**
-     * Get the connection parameters of a worker
-     */
-    std::shared_ptr<WorkerInfo> workerInfo (const std::string& workerName) const;
 
     /**
      * Make sure this worker is known in the configuration. Throws exception

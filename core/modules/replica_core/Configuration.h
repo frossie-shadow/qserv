@@ -29,6 +29,7 @@
 
 // System headers
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,15 @@
 namespace lsst {
 namespace qserv {
 namespace replica_core {
+
+/// The descriptor of a worker
+struct WorkerInfo {
+    std::string name;
+    std::string svcHost;
+    uint16_t    svcPort;
+    std::string xrootdHost;
+    uint16_t    xrootdPort;
+};
 
 /**
   * Class Configuration provides configuration services for all servers.
@@ -84,14 +94,14 @@ public:
     // -- Common configuration parameters of both the controller and workers --
     // ------------------------------------------------------------------------
 
-    /// The names of known workers.
+    /// The names of known workers
     const std::vector<std::string>& workers () const { return _workers; }
 
-    /// The maximum size of the request buffers in bytes.
+    /// The maximum size of the request buffers in bytes
     size_t requestBufferSizeBytes () const { return _requestBufferSizeBytes; }
 
-    /// Default timeout in seconds for the network retry operations
-    unsigned int defaultRetryTimeoutSec () const { return _defaultRetryTimeoutSec; }
+    /// A timeout in seconds for the network retry operations
+    unsigned int retryTimeoutSec () const { return _retryTimeoutSec; }
 
     // --------------------------------------------------------
     // -- Configuration parameters of the controller service --
@@ -109,17 +119,30 @@ public:
     // -- Configuration parameters of the worker services --
     // -----------------------------------------------------
 
+    /// Return the name of the current worker (if the one is set via the constructor)
     const std::string& workerName () const { return _workerName; }
 
-    /// The port number for the worker services
-    uint16_t workerSvcPort () const {return _workerSvcPort; }
+    /**
+     * Return 'true' if the specified work is known to the configuraion
+     *
+     * @param name - the name of a worker
+     */
+    bool isKnownWorker (const std::string &name) const;
 
-    /// The port number for the worker XRootD services
-    uint16_t workerXrootdPort () const { return _workerXrootdPort; }
+    /**
+     * Return parameters of the specified worker
+     *
+     * The method will throw std::out_of_range if the specified worker was not
+     * found in the configuration.
+     *
+     * @param name - the name of a worker
+     */
+    const WorkerInfo& workerInfo (const std::string &name) const;
 
     /// The maximum number of paralle network connections allowed by each worker
     size_t workerNumConnectionsLimit () const { return _workerNumConnectionsLimit; }
 
+    /// The number of request processing threads in each worker service
     size_t workerNumProcessingThreads () const { return _workerNumProcessingThreads; }
 
 private:
@@ -146,16 +169,16 @@ private:
     std::vector<std::string> _workers;
 
     size_t       _requestBufferSizeBytes;
-    unsigned int _defaultRetryTimeoutSec;
+    unsigned int _retryTimeoutSec;
 
     uint16_t     _controllerHttpPort;
     size_t       _controllerHttpThreads;
     unsigned int _controllerRequestTimeoutSec;
 
-    uint16_t     _workerSvcPort;
-    uint16_t     _workerXrootdPort;
     size_t       _workerNumConnectionsLimit;
     size_t       _workerNumProcessingThreads;
+    
+    std::map<std::string, WorkerInfo> _workerInfo;
 };
 
 }}} // namespace lsst::qserv::replica_core

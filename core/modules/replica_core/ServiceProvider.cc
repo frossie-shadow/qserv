@@ -32,7 +32,6 @@
 // Qserv headers
 
 #include "replica_core/Configuration.h"
-#include "replica_core/WorkerInfo.h"
 
 namespace lsst {
 namespace qserv {
@@ -43,31 +42,9 @@ ServiceProvider::ServiceProvider (Configuration &configuration)
     :   _configuration(configuration) {
 }
 
-std::vector<std::string>
-ServiceProvider::workers () const {
-    return _configuration.workers();
-}
-
-std::shared_ptr<WorkerInfo>
-ServiceProvider::workerInfo (const std::string& workerName) const {
-
-    const std::string &workerHost = workerName;
-
-    auto workers = _configuration.workers();
-    return workers.end() == std::find(workers.begin(), workers.end(), workerName) ?
-        std::make_shared<WorkerInfo> (
-            workerName,
-            workerHost,
-            std::to_string(_configuration.workerSvcPort()),
-            workerHost,
-            std::to_string(_configuration.workerSvcPort())) :
-        nullptr;
-}
-
 void
 ServiceProvider::assertWorkerIsValid (const std::string &name) {
-    std::shared_ptr<WorkerInfo> ptr = workerInfo(name);
-    if (!ptr)
+    if (!_configuration.isKnownWorker(name))
         throw std::invalid_argument (
             "Request::assertWorkerIsValid: worker name is not valid: " + name);
 }
